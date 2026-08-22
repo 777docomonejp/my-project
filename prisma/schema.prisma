@@ -1,0 +1,129 @@
+// Prisma schema for the family rabbit-sharing app
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// A family / household that shares rabbits, joined via inviteCode
+model Household {
+  id         String   @id @default(cuid())
+  name       String
+  inviteCode String   @unique
+  createdAt  DateTime @default(now())
+
+  members        User[]
+  rabbits        Rabbit[]
+  calendarEvents CalendarEvent[]
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  password    String
+  avatarEmoji String   @default("🐰")
+  createdAt   DateTime @default(now())
+
+  householdId String?
+  household   Household? @relation(fields: [householdId], references: [id])
+
+  growthRecords  GrowthRecord[]
+  dailyLogs      DailyLog[]
+  calendarEvents CalendarEvent[]
+  photos         Photo[]
+}
+
+model Rabbit {
+  id          String    @id @default(cuid())
+  name        String
+  breed       String?
+  sex         String? // "male" | "female" | "unknown"
+  birthDate   DateTime?
+  coverPhoto  String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  growthRecords  GrowthRecord[]
+  dailyLogs      DailyLog[]
+  calendarEvents CalendarEvent[]
+  photos         Photo[]
+}
+
+// A growth measurement entry (weight/height over time), optionally with a photo
+model GrowthRecord {
+  id        String   @id @default(cuid())
+  date      DateTime
+  weightG   Float? // weight in grams
+  heightCm  Float?
+  photo     String?
+  note      String?
+  createdAt DateTime @default(now())
+
+  rabbitId String
+  rabbit   Rabbit @relation(fields: [rabbitId], references: [id], onDelete: Cascade)
+
+  recordedById String?
+  recordedBy   User?   @relation(fields: [recordedById], references: [id])
+}
+
+// Daily care checklist: one row per (rabbit, date) tracking care tasks
+model DailyLog {
+  id     String   @id @default(cuid())
+  date   DateTime // normalized to the day (00:00)
+  fed        Boolean @default(false)
+  fedAt      DateTime?
+  watered     Boolean @default(false)
+  wateredAt   DateTime?
+  litterCleaned   Boolean @default(false)
+  litterCleanedAt DateTime?
+  groomed    Boolean @default(false)
+  playedWith Boolean @default(false)
+  note       String?
+  updatedAt  DateTime @updatedAt
+
+  rabbitId String
+  rabbit   Rabbit @relation(fields: [rabbitId], references: [id], onDelete: Cascade)
+
+  loggedById String?
+  loggedBy   User?   @relation(fields: [loggedById], references: [id])
+
+  @@unique([rabbitId, date])
+}
+
+model CalendarEvent {
+  id        String   @id @default(cuid())
+  title     String
+  date      DateTime
+  type      String   @default("other") // "vet" | "grooming" | "nail_trim" | "reminder" | "other"
+  notes     String?
+  createdAt DateTime @default(now())
+
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  rabbitId String?
+  rabbit   Rabbit? @relation(fields: [rabbitId], references: [id], onDelete: Cascade)
+
+  createdById String?
+  createdBy   User?   @relation(fields: [createdById], references: [id])
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  url       String
+  caption   String?
+  createdAt DateTime @default(now())
+
+  rabbitId String
+  rabbit   Rabbit @relation(fields: [rabbitId], references: [id], onDelete: Cascade)
+
+  uploadedById String?
+  uploadedBy   User?   @relation(fields: [uploadedById], references: [id])
+}
