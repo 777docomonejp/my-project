@@ -5,7 +5,10 @@ import { prisma } from "@/lib/prisma";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60 * 24 * 365, // 1 year — family members shouldn't need to log back in often
+  },
   pages: {
     signIn: "/login",
   },
