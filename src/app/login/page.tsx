@@ -35,7 +35,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <div className="text-4xl">🐰</div>
-          <h1 className="mt-2 text-2xl font-bold text-stone-800">うさぎのきろく</h1>
+          <h1 className="mt-2 text-2xl font-bold text-stone-800">らてのきろく</h1>
           <p className="mt-1 text-sm text-stone-500">家族でログインして共有しよう</p>
         </div>
         <form

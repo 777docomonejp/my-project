@@ -3,8 +3,8 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "うさぎのきろく | 家族で共有する飼育日記",
-  description: "家族みんなでうさぎの成長・お世話・写真を共有できるアプリ",
+  title: "らてのきろく | 家族で共有する飼育日記",
+  description: "家族みんなでらての成長・お世話・写真を共有できるアプリ",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

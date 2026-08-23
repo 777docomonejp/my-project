@@ -22,7 +22,7 @@ export function NavBar({ userName }: { userName: string }) {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link href="/dashboard" className="flex items-center gap-2 font-bold text-stone-800">
             <span className="text-xl">🐰</span>
-            <span>うさぎのきろく</span>
+            <span>らてのきろく</span>
           </Link>
           <nav className="hidden gap-1 sm:flex">
             {links.map((l) => {
