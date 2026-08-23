@@ -57,6 +57,12 @@ export default async function RabbitDetailPage({
             <p className="text-xs text-stone-400">誕生日: {formatDateJP(rabbit.birthDate)}</p>
           )}
         </div>
+        <Link
+          href={`/rabbits/${rabbit.id}/edit`}
+          className="ml-auto shrink-0 rounded-lg border border-stone-300 px-3 py-1.5 text-sm text-stone-600 transition hover:bg-stone-100"
+        >
+          編集
+        </Link>
       </div>
 
       {rabbit.notes && (
