@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireHouseholdUser } from "@/lib/currentUser";
 import { prisma } from "@/lib/prisma";
 import { formatAge, formatDateJP, formatDateShort, toDateOnly } from "@/lib/format";
-import { CareChecklist } from "@/components/CareChecklist";
+import { CareDayPanel } from "@/components/CareDayPanel";
 
 const TYPE_ICON: Record<string, string> = {
   vet: "🏥",
@@ -47,7 +47,8 @@ export default async function DashboardPage() {
     prisma.household.findUnique({ where: { id: user.householdId! } }),
   ]);
 
-  const logByRabbit = new Map(todayLogs.map((l) => [l.rabbitId, l]));
+  const amLogByRabbit = new Map(todayLogs.filter((l) => l.period === "am").map((l) => [l.rabbitId, l]));
+  const pmLogByRabbit = new Map(todayLogs.filter((l) => l.period === "pm").map((l) => [l.rabbitId, l]));
 
   return (
     <div className="space-y-8">
@@ -78,7 +79,8 @@ export default async function DashboardPage() {
           </div>
           <div className="space-y-3">
             {rabbits.map((rabbit) => {
-              const log = logByRabbit.get(rabbit.id);
+              const am = amLogByRabbit.get(rabbit.id);
+              const pm = pmLogByRabbit.get(rabbit.id);
               const [latest, prev] = rabbit.growthRecords;
               const delta =
                 latest?.weightG != null && prev?.weightG != null
@@ -112,17 +114,37 @@ export default async function DashboardPage() {
                       </span>
                     )}
                   </div>
-                  <CareChecklist
+                  <CareDayPanel
                     rabbitId={rabbit.id}
                     date={todayStr}
-                    initial={{
-                      fed: log?.fed ?? false,
-                      watered: log?.watered ?? false,
-                      litterCleaned: log?.litterCleaned ?? false,
-                      groomed: log?.groomed ?? false,
-                      playedWith: log?.playedWith ?? false,
-                    }}
-                    loggedByName={log?.loggedBy?.name}
+                    am={
+                      am
+                        ? {
+                            fields: {
+                              fed: am.fed,
+                              watered: am.watered,
+                              litterCleaned: am.litterCleaned,
+                              groomed: am.groomed,
+                              playedWith: am.playedWith,
+                            },
+                            loggedByName: am.loggedBy?.name,
+                          }
+                        : null
+                    }
+                    pm={
+                      pm
+                        ? {
+                            fields: {
+                              fed: pm.fed,
+                              watered: pm.watered,
+                              litterCleaned: pm.litterCleaned,
+                              groomed: pm.groomed,
+                              playedWith: pm.playedWith,
+                            },
+                            loggedByName: pm.loggedBy?.name,
+                          }
+                        : null
+                    }
                   />
                 </div>
               );

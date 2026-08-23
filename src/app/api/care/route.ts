@@ -14,6 +14,7 @@ const TIMESTAMP_FIELD: Partial<Record<(typeof FIELDS)[number], string>> = {
 const schema = z.object({
   rabbitId: z.string(),
   date: z.string(), // yyyy-mm-dd
+  period: z.enum(["am", "pm"]),
   field: z.enum(FIELDS),
   value: z.boolean(),
 });
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "invalid request" }, { status: 400 });
   }
-  const { rabbitId, date, field, value } = parsed.data;
+  const { rabbitId, date, period, field, value } = parsed.data;
 
   const rabbit = await prisma.rabbit.findFirst({
     where: { id: rabbitId, householdId: user.householdId! },
@@ -45,9 +46,9 @@ export async function POST(req: Request) {
   }
 
   const log = await prisma.dailyLog.upsert({
-    where: { rabbitId_date: { rabbitId, date: day } },
+    where: { rabbitId_date_period: { rabbitId, date: day, period } },
     update: data,
-    create: { rabbitId, date: day, ...data },
+    create: { rabbitId, date: day, period, ...data },
   });
 
   return NextResponse.json({ log });

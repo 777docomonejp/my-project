@@ -74,10 +74,12 @@ model GrowthRecord {
   recordedBy   User?   @relation(fields: [recordedById], references: [id])
 }
 
-// Daily care checklist: one row per (rabbit, date) tracking care tasks
+// Daily care checklist: one row per (rabbit, date, period) tracking care tasks.
+// period is "am" | "pm" so morning and night care are tracked separately.
 model DailyLog {
   id     String   @id @default(cuid())
   date   DateTime // normalized to the day (00:00)
+  period String   @default("am")
   fed        Boolean @default(false)
   fedAt      DateTime?
   watered     Boolean @default(false)
@@ -95,7 +97,7 @@ model DailyLog {
   loggedById String?
   loggedBy   User?   @relation(fields: [loggedById], references: [id])
 
-  @@unique([rabbitId, date])
+  @@unique([rabbitId, date, period])
 }
 
 model CalendarEvent {

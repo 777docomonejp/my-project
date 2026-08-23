@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 type Field = "fed" | "watered" | "litterCleaned" | "groomed" | "playedWith";
+export type CarePeriod = "am" | "pm";
 
 const TASKS: { field: Field; label: string; icon: string }[] = [
   { field: "fed", label: "ごはん", icon: "🥕" },
@@ -16,11 +17,13 @@ const TASKS: { field: Field; label: string; icon: string }[] = [
 export function CareChecklist({
   rabbitId,
   date,
+  period,
   initial,
   loggedByName,
 }: {
   rabbitId: string;
   date: string;
+  period: CarePeriod;
   initial: Partial<Record<Field, boolean>>;
   loggedByName?: string | null;
 }) {
@@ -34,7 +37,7 @@ export function CareChecklist({
     await fetch("/api/care", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ rabbitId, date, field, value: next }),
+      body: JSON.stringify({ rabbitId, date, period, field, value: next }),
     });
     startTransition(() => router.refresh());
   }
