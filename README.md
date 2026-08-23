@@ -47,14 +47,15 @@ npm run dev                 # 開発サーバーを起動 (http://localhost:3000
 1. **Neon でデータベースを作成**
    - https://neon.tech で GitHub アカウントなどでサインアップ
    - 「Create a project」→ 適当なプロジェクト名（例: `usagi-app`）で作成
-   - ダッシュボードの「Connection string」に表示される接続文字列（`postgresql://...` で始まるもの）をコピーしておく
+   - ダッシュボードの「Connection string」で、**Pooled connection（プールされた接続、ホスト名に `-pooler` が付くもの）** と **Direct connection（直接接続、`-pooler` が付かないもの）** の両方をコピーしておく（切り替えはUI上のトグルで可能です）
 2. **Vercel でプロジェクトをインポート**
    - https://vercel.com で GitHub アカウントでサインアップ／ログイン
    - 「Add New...」→「Project」→ GitHub リポジトリ `777docomonejp/my-project` を選択してインポート
      （まだ Vercel から見えない場合は「Adjust GitHub App Permissions」からこのリポジトリへのアクセスを許可）
    - Framework Preset は自動で「Next.js」になります（変更不要）
 3. **環境変数を設定**（インポート画面の「Environment Variables」で追加）
-   - `DATABASE_URL` … 手順1でコピーした Neon の接続文字列
+   - `DATABASE_URL` … 手順1でコピーした **Pooled connection** の接続文字列
+   - `DIRECT_URL` … 手順1でコピーした **Direct connection** の接続文字列（`prisma migrate deploy` はプール接続だとロック取得でタイムアウトするため、マイグレーション専用に直接接続を使います）
    - `AUTH_SECRET` … `openssl rand -base64 32` で生成したランダムな文字列
 4. **Deploy をクリック**
    - ビルド時に `prisma migrate deploy` が自動実行され、Neon のデータベースにテーブルが作成されます
