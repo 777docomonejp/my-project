@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireHouseholdUser } from "@/lib/currentUser";
 import { prisma } from "@/lib/prisma";
-import { formatAge, formatDateJP, formatDateShort, toDateOnly } from "@/lib/format";
+import { formatAge, formatDateJP, formatDateShort, todayDateOnly } from "@/lib/format";
 import { CareDayPanel } from "@/components/CareDayPanel";
 
 const TYPE_ICON: Record<string, string> = {
@@ -14,7 +14,7 @@ const TYPE_ICON: Record<string, string> = {
 
 export default async function DashboardPage() {
   const user = await requireHouseholdUser();
-  const today = toDateOnly(new Date());
+  const today = todayDateOnly();
   const todayStr = today.toISOString().slice(0, 10);
 
   const [rabbits, todayLogs, upcomingEvents, recentPhotos, household] = await Promise.all([

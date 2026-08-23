@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireHouseholdUser } from "@/lib/currentUser";
 import { prisma } from "@/lib/prisma";
-import { toDateOnly, formatDateShort } from "@/lib/format";
+import { todayDateOnly, formatDateShort } from "@/lib/format";
 import { CareDayPanel } from "@/components/CareDayPanel";
 
 const HISTORY_DAYS = 7;
@@ -15,7 +15,7 @@ export default async function CarePage() {
     orderBy: { createdAt: "asc" },
   });
 
-  const today = toDateOnly(new Date());
+  const today = todayDateOnly();
   const historyStart = new Date(today);
   historyStart.setDate(historyStart.getDate() - (HISTORY_DAYS - 1));
 
