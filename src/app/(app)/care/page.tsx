@@ -5,7 +5,7 @@ import { todayDateOnly, formatDateShort } from "@/lib/format";
 import { CareDayPanel } from "@/components/CareDayPanel";
 
 const HISTORY_DAYS = 7;
-const TASK_COUNT_PER_PERIOD = 5;
+const TASK_COUNT_PER_PERIOD = 6; // fed, watered, litterCleaned, groomed, playedWith, timothy (gojiBerry is Mon/Wed/Fri only)
 
 export default async function CarePage() {
   const user = await requireHouseholdUser();
@@ -76,6 +76,8 @@ export default async function CarePage() {
                         litterCleaned: todayAm.litterCleaned,
                         groomed: todayAm.groomed,
                         playedWith: todayAm.playedWith,
+                        timothy: todayAm.timothy,
+                        gojiBerry: todayAm.gojiBerry,
                       },
                       loggedByName: todayAm.loggedBy?.name,
                     }
@@ -90,6 +92,8 @@ export default async function CarePage() {
                         litterCleaned: todayPm.litterCleaned,
                         groomed: todayPm.groomed,
                         playedWith: todayPm.playedWith,
+                        timothy: todayPm.timothy,
+                        gojiBerry: todayPm.gojiBerry,
                       },
                       loggedByName: todayPm.loggedBy?.name,
                     }
@@ -104,7 +108,11 @@ export default async function CarePage() {
                   const am = logMap.get(`${rabbit.id}_${d.toISOString()}_am`);
                   const pm = logMap.get(`${rabbit.id}_${d.toISOString()}_pm`);
                   const countFor = (log: typeof am) =>
-                    log ? [log.fed, log.watered, log.litterCleaned, log.groomed, log.playedWith].filter(Boolean).length : 0;
+                    log
+                      ? [log.fed, log.watered, log.litterCleaned, log.groomed, log.playedWith, log.timothy, log.gojiBerry].filter(
+                          Boolean,
+                        ).length
+                      : 0;
                   const doneCount = countFor(am) + countFor(pm);
                   const maxCount = TASK_COUNT_PER_PERIOD * 2;
                   const isToday = d.getTime() === today.getTime();

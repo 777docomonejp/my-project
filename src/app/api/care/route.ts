@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireApiUser } from "@/lib/apiAuth";
-import { toDateOnly } from "@/lib/format";
+import { toDateOnly, isGojiBerryDay } from "@/lib/format";
 
-const FIELDS = ["fed", "watered", "litterCleaned", "groomed", "playedWith"] as const;
+const FIELDS = ["fed", "watered", "litterCleaned", "groomed", "playedWith", "timothy", "gojiBerry"] as const;
 const TIMESTAMP_FIELD: Partial<Record<(typeof FIELDS)[number], string>> = {
   fed: "fedAt",
   watered: "wateredAt",
@@ -28,6 +28,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid request" }, { status: 400 });
   }
   const { rabbitId, date, period, field, value } = parsed.data;
+
+  if (field === "gojiBerry" && value && !isGojiBerryDay(date)) {
+    return NextResponse.json({ error: "クコの実は月・水・金のみ記録できます" }, { status: 400 });
+  }
 
   const rabbit = await prisma.rabbit.findFirst({
     where: { id: rabbitId, householdId: user.householdId! },

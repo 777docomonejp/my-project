@@ -6,6 +6,8 @@ type Fields = {
   litterCleaned: boolean;
   groomed: boolean;
   playedWith: boolean;
+  timothy: boolean;
+  gojiBerry: boolean;
 };
 
 export function CareDayPanel({
@@ -25,6 +27,8 @@ export function CareDayPanel({
     litterCleaned: false,
     groomed: false,
     playedWith: false,
+    timothy: false,
+    gojiBerry: false,
   };
 
   return (

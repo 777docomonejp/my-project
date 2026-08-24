@@ -88,6 +88,8 @@ model DailyLog {
   litterCleanedAt DateTime?
   groomed    Boolean @default(false)
   playedWith Boolean @default(false)
+  timothy    Boolean @default(false)
+  gojiBerry  Boolean @default(false) // only shown to users on Mon/Wed/Fri
   note       String?
   updatedAt  DateTime @updatedAt
 

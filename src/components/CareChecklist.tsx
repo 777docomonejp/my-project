@@ -2,17 +2,28 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { isGojiBerryDay } from "@/lib/format";
 
-type Field = "fed" | "watered" | "litterCleaned" | "groomed" | "playedWith";
+type Field =
+  | "fed"
+  | "watered"
+  | "litterCleaned"
+  | "groomed"
+  | "playedWith"
+  | "timothy"
+  | "gojiBerry";
 export type CarePeriod = "am" | "pm";
 
-const TASKS: { field: Field; label: string; icon: string }[] = [
+const BASE_TASKS: { field: Field; label: string; icon: string }[] = [
   { field: "fed", label: "ごはん", icon: "🥕" },
   { field: "watered", label: "お水交換", icon: "💧" },
   { field: "litterCleaned", label: "トイレ掃除", icon: "🧹" },
   { field: "groomed", label: "ブラッシング", icon: "🪮" },
   { field: "playedWith", label: "遊んだ", icon: "🎾" },
+  { field: "timothy", label: "チモシー", icon: "🌾" },
 ];
+
+const GOJI_BERRY_TASK = { field: "gojiBerry" as const, label: "クコの実", icon: "🍒" };
 
 export function CareChecklist({
   rabbitId,
@@ -31,6 +42,8 @@ export function CareChecklist({
   const [state, setState] = useState(initial);
   const [pending, startTransition] = useTransition();
 
+  const tasks = isGojiBerryDay(date) ? [...BASE_TASKS, GOJI_BERRY_TASK] : BASE_TASKS;
+
   async function toggle(field: Field) {
     const next = !state[field];
     setState((s) => ({ ...s, [field]: next }));
@@ -45,7 +58,7 @@ export function CareChecklist({
   return (
     <div>
       <div className="flex flex-wrap gap-2">
-        {TASKS.map((t) => {
+        {tasks.map((t) => {
           const done = !!state[t.field];
           return (
             <button

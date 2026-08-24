@@ -126,6 +126,8 @@ export default async function DashboardPage() {
                               litterCleaned: am.litterCleaned,
                               groomed: am.groomed,
                               playedWith: am.playedWith,
+                              timothy: am.timothy,
+                              gojiBerry: am.gojiBerry,
                             },
                             loggedByName: am.loggedBy?.name,
                           }
@@ -140,6 +142,8 @@ export default async function DashboardPage() {
                               litterCleaned: pm.litterCleaned,
                               groomed: pm.groomed,
                               playedWith: pm.playedWith,
+                              timothy: pm.timothy,
+                              gojiBerry: pm.gojiBerry,
                             },
                             loggedByName: pm.loggedBy?.name,
                           }

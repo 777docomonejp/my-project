@@ -49,3 +49,9 @@ export function toDateOnly(date: Date | string): Date {
   const d = typeof date === "string" ? new Date(date) : date;
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
+
+/** クコの実 is only offered on Monday / Wednesday / Friday. `dateStr` is "yyyy-mm-dd". */
+export function isGojiBerryDay(dateStr: string): boolean {
+  const day = new Date(dateStr).getUTCDay(); // 0=Sun ... 6=Sat, timezone-independent for a date-only string
+  return day === 1 || day === 3 || day === 5;
+}
