@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { formatAge, formatDateJP } from "@/lib/format";
 import { GrowthChart } from "@/components/GrowthChart";
 import { AddGrowthRecordForm } from "@/components/AddGrowthRecordForm";
+import { GrowthRecordItem } from "@/components/GrowthRecordItem";
 
 const sexLabel: Record<string, string> = { male: "オス", female: "メス", unknown: "不明" };
 
@@ -89,34 +90,19 @@ export default async function RabbitDetailPage({
             </p>
           ) : (
             rabbit.growthRecords.map((record) => (
-              <div
+              <GrowthRecordItem
                 key={record.id}
-                className="flex gap-3 rounded-xl border border-stone-200 bg-white p-3 shadow-sm"
-              >
-                {record.photo && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={record.photo}
-                    alt=""
-                    className="h-16 w-16 shrink-0 rounded-lg object-cover"
-                  />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-stone-400">{formatDateJP(record.date)}</p>
-                  <p className="text-sm font-medium text-stone-800">
-                    {[
-                      record.weightG != null ? `${record.weightG} g` : null,
-                      record.heightCm != null ? `${record.heightCm} cm` : null,
-                    ]
-                      .filter(Boolean)
-                      .join(" ・ ") || "写真のみ"}
-                  </p>
-                  {record.note && <p className="text-sm text-stone-600">{record.note}</p>}
-                  {record.recordedBy && (
-                    <p className="text-xs text-stone-400">記録者: {record.recordedBy.name}</p>
-                  )}
-                </div>
-              </div>
+                rabbitId={rabbit.id}
+                record={{
+                  id: record.id,
+                  date: record.date.toISOString(),
+                  weightG: record.weightG,
+                  heightCm: record.heightCm,
+                  photo: record.photo,
+                  note: record.note,
+                  recordedByName: record.recordedBy?.name ?? null,
+                }}
+              />
             ))
           )}
         </div>
