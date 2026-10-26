@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // 別アプリ（旅行アプリ）。独自の設定でビルドする
+    "drive-trip/**",
   ]),
 ]);
 
