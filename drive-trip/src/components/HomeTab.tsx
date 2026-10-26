@@ -289,8 +289,21 @@ export function ShareLinkCard({ s, always = false }: { s: Store; always?: boolea
       </section>
     );
   }
-  if (!always && s.me) return null;
   const url = shareUrl(s.shareKey);
+  const copy = async () => setMsg((await copyText(url)) ? "コピーしました。LINEに貼って送ってください。" : "コピーできませんでした。「共有」→「同期」の欄を長押ししてコピーしてください。");
+  if (!always && s.me) {
+    // 名前を選んだ後は、ホームの一番上に小さく常に出す
+    return (
+      <section className="share-bar">
+        <div className="share-bar-text">
+          <b>3人の共有URL</b>
+          <span className="muted small">2人に送るときはここからコピー</span>
+        </div>
+        <button className="btn primary small" onClick={copy}>URLをコピー</button>
+        {msg && <p className="ok-text small share-bar-msg">{msg}</p>}
+      </section>
+    );
+  }
   return (
     <section className="card share-card">
       <h2>このURLを2人に送る</h2>
@@ -298,7 +311,7 @@ export function ShareLinkCard({ s, always = false }: { s: Store; always?: boolea
       <input id="share-url" readOnly value={url} onFocus={(e) => e.currentTarget.select()} aria-label="共有URL" />
       <button
         className="btn primary"
-        onClick={async () => setMsg((await copyText(url)) ? "コピーしました。LINEに貼って送ってください。" : "上の欄を長押ししてコピーしてください。")}
+        onClick={copy}
       >
         URLをコピー
       </button>
