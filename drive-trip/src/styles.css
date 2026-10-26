@@ -342,3 +342,9 @@ section > .list { background: var(--surface); border: 1px solid var(--line); bor
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+.cloud-line { font-size: 0.8rem; color: var(--muted); padding-left: 14px; position: relative; }
+.cloud-line::before { content: ""; position: absolute; left: 0; top: 0.5em; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.cloud-line.saved::before { background: var(--ok); }
+.cloud-line.saving::before, .cloud-line.connecting::before { background: var(--est); }
+.cloud-line.error::before, .cloud-line.conflict::before, .cloud-line.readonly::before { background: var(--warn); }
+.card.conflict { border-color: var(--warn); background: var(--warn-bg); }

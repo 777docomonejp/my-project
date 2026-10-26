@@ -233,6 +233,13 @@ function Backup({ s }: { s: Store }) {
         <button className="btn" disabled={!text.trim()} onClick={() => restore(text)}>貼り付けから復元</button>
       </div>
       {msg && <div className="alert ok" role="status">{msg}</div>}
+      {s.stash() && (
+        <div className="card stack">
+          <h2>退避したデータ</h2>
+          <p className="muted small">クラウドとの切り替え時に退避したデータ（{s.stash()!.meta.title}）があります。今のデータと統合して戻せます。</p>
+          <button className="btn" onClick={() => { const st = s.stash(); if (st) { s.setTrip((cur) => (cur.tripId === st.tripId ? mergeTrips(cur, st) : st)); setMsg("退避したデータを戻しました。"); } }}>退避したデータを戻す</button>
+        </div>
+      )}
       <div className="card stack">
         <h2>初期状態に戻す</h2>
         <p className="muted small">この端末のデータを全て消して初期データに戻します。先にバックアップを取ってください。</p>

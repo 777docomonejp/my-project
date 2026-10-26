@@ -180,3 +180,48 @@ export function clearTrip(kv: KV | null) {
     /* 無視 */
   }
 }
+
+/** 初期データから一度も編集されていないか（編集すると updatedAt が変わる） */
+export function isPristine(t: Trip): boolean {
+  if (t.tombstones.length) return false;
+  if (t.messages.length || t.votes.length || t.spotStates.length || t.customSpots.length) return false;
+  const created = t.meta.updatedAt;
+  return COLLECTIONS.every((c) => (t[c] as Rec[]).every((r) => r.updatedAt === created));
+}
+
+export type CloudDecision = "push" | "adopt" | "merge" | "conflict" | "same";
+
+/**
+ * 端末のデータとクラウドのデータの扱いを決める。どちらかの入力済みデータを黙って捨てることはしない。
+ * - クラウドが空：端末のデータを保存（push）
+ * - 同じ旅行：レコード単位で統合（merge）
+ * - 端末が未編集の初期データ：クラウドを採用（adopt）
+ * - 別の旅行で両方とも入力済み：利用者に選んでもらう（conflict）
+ */
+export function decideCloud(local: Trip, cloud: Trip | null): CloudDecision {
+  if (!cloud) return "push";
+  if (local.tripId === cloud.tripId) return JSON.stringify(mergeTrips(local, cloud)) === JSON.stringify(mergeTrips(local, local)) ? "same" : "merge";
+  if (isPristine(local)) return "adopt";
+  if (isPristine(cloud)) return "push";
+  return "conflict";
+}
+
+const STASH_KEY = "drive-trip:v1:stash";
+
+/** 置き換えられる前のデータを端末内に退避する（復元はバックアップ画面から） */
+export function stashTrip(kv: KV | null, trip: Trip) {
+  try {
+    kv?.setItem(STASH_KEY, JSON.stringify(trip));
+  } catch {
+    /* 退避できなくても続行 */
+  }
+}
+
+export function readStash(kv: KV | null): Trip | null {
+  try {
+    const s = kv?.getItem(STASH_KEY);
+    return s ? normalizeTrip(JSON.parse(s)) : null;
+  } catch {
+    return null;
+  }
+}

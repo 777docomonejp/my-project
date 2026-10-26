@@ -16,6 +16,20 @@ export function HomeTab({ s, go }: { s: Store; go: (tab: string) => void }) {
 
   return (
     <div className="stack">
+      {s.conflict && (
+        <section className="card conflict" role="alert">
+          <h2>保存データが2つあります</h2>
+          <p className="small">
+            この端末のデータ（{s.trip.meta.title}・費用{s.trip.costs.length}件・予定{s.trip.itinerary.length}件）と、
+            クラウドのデータ（{s.conflict.meta.title}・費用{s.conflict.costs.length}件・予定{s.conflict.itinerary.length}件）が別々に入力されています。
+            使う方を選んでください。選ばなかった方もこの端末に退避され、「共有 → バックアップ」から戻せます。
+          </p>
+          <div className="row wrap">
+            <button className="btn primary" onClick={() => s.resolveConflict("local")}>この端末のデータを使う</button>
+            <button className="btn" onClick={() => s.resolveConflict("cloud")}>クラウドのデータを使う</button>
+          </div>
+        </section>
+      )}
       <section className="card hero">
         <div className="route">
           <span>{trip.meta.origin}</span>
@@ -35,6 +49,7 @@ export function HomeTab({ s, go }: { s: Store; go: (tab: string) => void }) {
         <button className="btn" onClick={() => setEditMeta(true)}>
           旅行の基本情報を編集
         </button>
+        <CloudLine s={s} />
       </section>
 
       <section className="tiles">
@@ -218,4 +233,18 @@ function HotelSheet({ hotel, isNew, onSave, onDelete, onClose }: { hotel: Hotel;
       </form>
     </Sheet>
   );
+}
+
+const CLOUD_TEXT: Record<Store["cloud"], string> = {
+  off: "この端末だけに保存中。ほかの端末やホーム画面のアプリとは自動で共有されません",
+  connecting: "クラウドに接続中…",
+  saved: "クラウドに保存済み。ほかの端末やホーム画面のアプリで開いても同じ内容が出ます",
+  saving: "クラウドに保存中…",
+  readonly: "閲覧のみの権限のため、変更はこの端末だけに保存されます",
+  error: "クラウドに接続できません。変更はこの端末に保存され、つながると保存されます",
+  conflict: "保存データの選択待ち（上のカードで選んでください）",
+};
+
+function CloudLine({ s }: { s: Store }) {
+  return <p className={`cloud-line ${s.cloud}`}>{CLOUD_TEXT[s.cloud]}</p>;
 }

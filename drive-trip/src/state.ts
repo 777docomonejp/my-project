@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import spotsJson from "./data/spots.json";
 import type { Collection, Spot, Trip } from "./types";
-import { loadTrip, remove, safeStorage, saveTrip, upsert } from "./lib/trip";
+import { decideCloud, loadTrip, mergeTrips, normalizeTrip, readStash, remove, safeStorage, saveTrip, stashTrip, upsert } from "./lib/trip";
 
 export const BUILTIN_SPOTS = spotsJson as Spot[];
 
@@ -24,6 +24,24 @@ function writePref(key: string, v: string) {
   }
 }
 
+// claude.ai のページで使えるクラウド保存（db）。それ以外の場所で開いた場合は端末保存のみ。
+interface CloudDoc {
+  get(): Promise<{ exists: boolean; data(): Record<string, unknown> | undefined }>;
+  set(d: Record<string, unknown>): Promise<void>;
+  onSnapshot(next: (s: { exists: boolean; data(): Record<string, unknown> | undefined }) => void, err?: (e: { code: string }) => void): () => void;
+}
+type ClaudeRuntime = { use?: (n: string) => Promise<{ doc(p: string): CloudDoc } | null> };
+
+export type CloudStatus = "off" | "connecting" | "saved" | "saving" | "readonly" | "error" | "conflict";
+
+function parseCloud(d: Record<string, unknown> | undefined): Trip | null {
+  try {
+    return typeof d?.json === "string" ? normalizeTrip(JSON.parse(d.json)) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function useTripStore() {
   const kv = useMemo(() => safeStorage(), []);
   const initial = useMemo(() => loadTrip(kv), [kv]);
@@ -42,6 +60,95 @@ export function useTripStore() {
     const err = saveTrip(kv, trip);
     if (err && kv) setNotice(`${err}。共有タブからバックアップを取ってください。`);
   }, [kv, trip]);
+
+  // ---- クラウド保存 ----
+  const [cloud, setCloud] = useState<CloudStatus>("off");
+  const [conflict, setConflict] = useState<Trip | null>(null);
+  const doc = useRef<CloudDoc | null>(null);
+  const lastCloudJson = useRef<string>("");
+  const ready = useRef(false);
+  const tripRef = useRef(trip);
+  tripRef.current = trip;
+
+  useEffect(() => {
+    let unsub: (() => void) | undefined;
+    let alive = true;
+    (async () => {
+      const claude = (globalThis as unknown as { claude?: ClaudeRuntime }).claude;
+      if (!claude?.use) return;
+      setCloud("connecting");
+      const db = await claude.use("db").catch(() => null);
+      if (!alive) return;
+      if (!db) return setCloud("off");
+      const ref = db.doc("trips/main");
+      doc.current = ref;
+      unsub = ref.onSnapshot(
+        (snap) => {
+          const remote = snap.exists ? parseCloud(snap.data()) : null;
+          if (remote) lastCloudJson.current = JSON.stringify(remote);
+          const local = tripRef.current;
+          const d = decideCloud(local, remote);
+          if (d === "conflict") {
+            setConflict(remote);
+            setCloud("conflict");
+            return;
+          }
+          if (d === "adopt" && remote) setTrip(remote);
+          if (d === "merge" && remote) setTrip((cur) => mergeTrips(cur, remote));
+          ready.current = true;
+          setCloud((c) => (c === "readonly" ? c : "saved"));
+          if (d === "push") setTrip((cur) => ({ ...cur })); // 保存処理を走らせる
+        },
+        () => setCloud("error"),
+      );
+    })();
+    return () => {
+      alive = false;
+      unsub?.();
+    };
+  }, []);
+
+  // 変更をクラウドへ（まとめて1.5秒後に1回）
+  useEffect(() => {
+    const ref = doc.current;
+    if (!ref || !ready.current || cloud === "readonly" || cloud === "conflict") return;
+    const json = JSON.stringify(trip);
+    if (json === lastCloudJson.current) return;
+    if (json.length > 240_000) {
+      setNotice("データが大きくなりすぎてクラウドに保存できません。古いチャットを削除するか、バックアップを取ってください。");
+      return;
+    }
+    setCloud("saving");
+    const timer = setTimeout(async () => {
+      try {
+        await ref.set({ json, savedAt: Date.now() });
+        lastCloudJson.current = json;
+        setCloud("saved");
+      } catch (e) {
+        const code = (e as { code?: string })?.code;
+        setCloud(code === "invalid_argument" ? "readonly" : "error");
+      }
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [trip, cloud]);
+
+  const resolveConflict = useCallback(
+    (use: "local" | "cloud") => {
+      if (!conflict) return;
+      if (use === "cloud") {
+        stashTrip(kv, tripRef.current);
+        setTrip(conflict);
+        lastCloudJson.current = JSON.stringify(conflict);
+      } else {
+        stashTrip(kv, conflict);
+        lastCloudJson.current = "";
+      }
+      setConflict(null);
+      ready.current = true;
+      setCloud("saved");
+    },
+    [conflict, kv],
+  );
 
   const put = useCallback(<C extends Collection>(c: C, rec: Trip[C][number]) => setTrip((t) => upsert(t, c, rec)), []);
   const del = useCallback((c: Collection, id: string) => setTrip((t) => remove(t, c, id)), []);
@@ -71,6 +178,10 @@ export function useTripStore() {
       writePref(PASS_KEY, v);
     },
     storageOk: !!kv,
+    cloud,
+    conflict,
+    resolveConflict,
+    stash: () => readStash(kv),
   };
 }
 
