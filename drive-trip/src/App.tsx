@@ -25,8 +25,7 @@ export function App() {
   return (
     <div className="app">
       <header className="top">
-        <span className="sign">戸田 合流</span>
-        <span className="top-title">{s.trip.meta.title}</span>
+        <span className="top-title">オヤジ3人旅特設アプリ</span>
         <span className="me">{s.me ? s.memberName(s.me) : "名前未選択"}</span>
       </header>
       {s.notice && (

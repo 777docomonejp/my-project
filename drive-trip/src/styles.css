@@ -111,7 +111,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   padding: 0 8px;
   white-space: nowrap;
 }
-.top-title { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.top-title { flex: 1; font-family: var(--font-display); font-weight: 400; letter-spacing: 0.02em; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .me { font-size: 0.8rem; opacity: 0.9; white-space: nowrap; max-width: 40%; overflow: hidden; text-overflow: ellipsis; }
 
 .content {
