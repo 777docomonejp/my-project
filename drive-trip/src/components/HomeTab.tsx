@@ -93,7 +93,7 @@ export function HomeTab({ s, go }: { s: Store; go: (tab: string) => void }) {
             </li>
           ))}
         </ul>
-        <p className="muted small">宿泊料金を費用に含めるには「費用」タブで宿泊費として登録してください（支払者・負担者を指定できます）。</p>
+        <p className="muted small">宿泊料金を費用に含めるには「費用」タブで宿泊費として登録してください（負担する人を指定できます）。</p>
       </section>
 
       {editMeta && <MetaSheet meta={trip.meta} onSave={(m) => { s.setTrip((t) => ({ ...t, meta: { ...m, updatedAt: Date.now() } })); setEditMeta(false); }} onClose={() => setEditMeta(false)} />}

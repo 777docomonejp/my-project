@@ -40,34 +40,17 @@ export function CostTab({ s }: { s: Store }) {
       </section>
 
       <section className="card">
-        <h2>精算（3人の最終金額）</h2>
+        <h2>1人あたりの負担額</h2>
         <table className="tbl">
-          <thead>
-            <tr><th>名前</th><th>立替</th><th>負担</th><th>差額</th></tr>
-          </thead>
           <tbody>
             {sum.perPerson.map((p) => (
               <tr key={p.memberId}>
                 <th>{s.memberName(p.memberId)}</th>
-                <td>{yen(p.paid)}</td>
                 <td>{yen(p.owed)}</td>
-                <td className={p.balance > 0 ? "plus" : p.balance < 0 ? "minus" : ""}>{p.balance > 0 ? "+" : ""}{yen(p.balance)}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        {sum.transfers.length ? (
-          <ul className="transfers">
-            {sum.transfers.map((t, i) => (
-              <li key={i}>
-                <b>{s.memberName(t.from)}</b> → <b>{s.memberName(t.to)}</b> へ <b className="num">{yen(t.amount)}</b>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="muted small">精算は不要です（立替がないか、全員の負担が釣り合っています）。</p>
-        )}
-        {sum.unassigned > 0 && <p className="warn-text small">支払者が未設定の費用が {yen(sum.unassigned)} あります。</p>}
       </section>
 
       <div className="row-between">
@@ -91,7 +74,7 @@ export function CostTab({ s }: { s: Store }) {
                   <div>
                     <div>{c.label || CATEGORY_LABEL[c.category]}</div>
                     <div className="muted small">
-                      {CATEGORY_LABEL[c.category]}・{s.memberName(c.payerId)}が支払い・{participants(c, s.trip.members).length}人で割る
+                      {CATEGORY_LABEL[c.category]}・{participants(c, s.trip.members).length}人で割る
                       {c.category === "fuel" && ` ・${c.distanceKm ?? 0}km ÷ ${c.kmPerL ?? 0}km/L × ${c.yenPerL ?? 0}円`}
                     </div>
                   </div>
@@ -164,11 +147,6 @@ function CostSheet({ s, item, isNew, onSave, onDelete, onClose }: { s: Store; it
           <select id="c-conf" value={c.confirmed ? "1" : "0"} onChange={(e) => setC({ ...c, confirmed: e.target.value === "1" })}>
             <option value="0">概算（目安・未確認）</option>
             <option value="1">確認済み（レシート・明細あり）</option>
-          </select>
-        </Field>
-        <Field label="支払った人（立替者）">
-          <select id="c-payer" value={c.payerId} onChange={(e) => setC({ ...c, payerId: e.target.value })}>
-            {s.trip.members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
         </Field>
         <fieldset className="field">
