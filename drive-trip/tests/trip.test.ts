@@ -100,7 +100,16 @@ describe("同梱の観光地データ", () => {
       expect(s.lat).toBeLessThan(37.2);
       expect(s.lng).toBeGreaterThan(138.3);
       expect(s.lng).toBeLessThan(141.0);
+      expect(s.lat).toBeGreaterThan(34.5);
       if ("url" in s && s.url) expect(s.url).toMatch(/^https:\/\//);
     }
+  });
+});
+
+describe("追加した静岡・居酒屋・ちゃんこ", () => {
+  it("サウナしきじ・静岡・ちゃんこ・居酒屋が入っている", () => {
+    expect(spots.find((s) => s.id === "shikiji")?.pref).toBe("静岡");
+    expect(spots.filter((s) => s.genre === "ちゃんこ").length).toBeGreaterThanOrEqual(3);
+    expect(spots.filter((s) => s.genre === "居酒屋").length).toBeGreaterThanOrEqual(4);
   });
 });
