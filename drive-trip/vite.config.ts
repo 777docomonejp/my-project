@@ -9,14 +9,17 @@ const SERVER = process.env.VERCEL === "1" || process.env.DRIVE_TRIP_SERVER === "
 /** ローカル確認用：/api/trip をメモリ上の保存先で動かす（本番は Vercel Functions + Neon） */
 function localApi(): Plugin {
   const rows = new Map<string, { json: string; version: number }>();
+  const hist = new Map<string, { version: number; json: string; savedAt: string }[]>();
   const store: TripStore = {
     get: async (id) => rows.get(id) ?? null,
     put: async (id, json, base) => {
       const cur = rows.get(id);
       if ((cur?.version ?? 0) !== base) return null;
       rows.set(id, { json, version: base + 1 });
+      hist.set(id, [{ version: base + 1, json, savedAt: new Date().toISOString() }, ...(hist.get(id) ?? [])]);
       return base + 1;
     },
+    history: async (id, limit) => (hist.get(id) ?? []).slice(0, limit),
   };
   const mw = async (req: import("node:http").IncomingMessage, res: import("node:http").ServerResponse, next: () => void) => {
     if (!req.url?.startsWith("/api/trip")) return next();

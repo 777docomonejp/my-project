@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { createDefaultTrip, mergeTrips, newId, normalizeTrip } from "../lib/trip";
 import { decodeShare, encodeShare, generatePassphrase } from "../lib/share";
+import { fetchHistory, fetchVersion, type HistoryEntry } from "../lib/remote";
 import { fmtTime, type Store } from "../state";
 import type { Trip } from "../types";
 import { tallyVotes, VoteButtons } from "./SpotDetail";
@@ -246,6 +247,7 @@ function Backup({ s }: { s: Store }) {
         <button className="btn" disabled={!text.trim()} onClick={() => restore(text)}>貼り付けから復元</button>
       </div>
       {msg && <div className="alert ok" role="status">{msg}</div>}
+      {s.server && s.shareKey && <ServerHistory s={s} />}
       {s.stash() && (
         <div className="card stack">
           <h2>退避したデータ</h2>
@@ -260,5 +262,55 @@ function Backup({ s }: { s: Store }) {
       </div>
       {!s.storageOk && <div className="alert warn">この端末ではブラウザ保存が使えません。ページを閉じるとデータが消えます。</div>}
     </section>
+  );
+}
+
+/** Vercel 版：サーバーに残っている過去の版から戻す */
+function ServerHistory({ s }: { s: Store }) {
+  const [list, setList] = useState<HistoryEntry[] | null>(null);
+  const [msg, setMsg] = useState("");
+  const load = async () => {
+    setMsg("");
+    try {
+      setList(await fetchHistory(s.shareKey));
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "履歴を読み込めませんでした");
+    }
+  };
+  const restore = async (v: number) => {
+    try {
+      const t = normalizeTrip(JSON.parse(await fetchVersion(s.shareKey, v)));
+      if (!t) throw new Error("その版を読み込めませんでした");
+      s.replaceTrip(t);
+      setMsg(`${v}番目の版に戻しました。3人の画面にも反映されます。`);
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "戻せませんでした");
+    }
+  };
+  return (
+    <div className="card stack">
+      <h2>保存の履歴（共有データ）</h2>
+      <p className="muted small">共有データは保存のたびにサーバーに履歴が残ります（最新200件）。間違えて消したり上書きしたりしたときは、ここから前の状態に戻せます。今の内容はこの端末に退避されます。</p>
+      {!list && <button className="btn" onClick={load}>履歴を見る</button>}
+      {list && list.length === 0 && <p className="muted small">まだ履歴がありません。</p>}
+      {list && (
+        <ul className="list history">
+          {list.map((h) => (
+            <li key={h.version} className="list-item">
+              <div>
+                <div><b>{fmtTime(Date.parse(h.savedAt))}</b> <span className="muted small">#{h.version}</span></div>
+                {h.summary && (
+                  <div className="muted small">
+                    費用{h.summary.costs}件・予定{h.summary.itinerary}件・チャット{h.summary.messages}件・観光地の印{h.summary.spots}件
+                  </div>
+                )}
+              </div>
+              <ConfirmButton className="btn small" label="この版に戻す" confirmLabel="戻す" onConfirm={() => restore(h.version)} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {msg && <p className="ok-text small">{msg}</p>}
+    </div>
   );
 }

@@ -90,6 +90,8 @@ export function useTripStore() {
       doc.current = ref;
       unsub = ref.onSnapshot(
         (snap) => {
+          // 読み込み途中の「まだ無い」を本当の空と勘違いして、初期データで上書きしないようにする
+          if (!snap.exists && snap.metadata?.fromCache) return;
           const remote = snap.exists ? parseCloud(snap.data()) : null;
           if (remote) lastCloudJson.current = JSON.stringify(remote);
           const local = tripRef.current;
@@ -115,6 +117,12 @@ export function useTripStore() {
       ready.current = false;
     };
   }, [shareKey]);
+
+  const joinShareKey = useCallback((k: string) => {
+    remember(k);
+    putInUrl(k);
+    setShareKey(k);
+  }, []);
 
   const createShareKey = useCallback(() => {
     const k = newShareKey();
@@ -199,8 +207,18 @@ export function useTripStore() {
     conflict,
     resolveConflict,
     stash: () => readStash(kv),
+    replaceTrip: (next: Trip) => {
+      stashTrip(kv, tripRef.current);
+      // 選択待ちのカードが出ていても、戻した内容をそのまま共有データとして保存する
+      setConflict(null);
+      lastCloudJson.current = "";
+      if (doc.current) ready.current = true;
+      setCloud((c) => (c === "conflict" ? "saved" : c));
+      setTrip(next);
+    },
     shareKey,
     createShareKey,
+    joinShareKey,
     server: SERVER,
   };
 }

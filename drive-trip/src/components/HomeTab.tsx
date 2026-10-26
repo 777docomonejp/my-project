@@ -4,7 +4,7 @@ import { newId } from "../lib/trip";
 import { summarize, yen } from "../lib/cost";
 import { DEFAULT_BASE, fmtDate, type Store } from "../state";
 import { Badge, ConfirmButton, Field, Sheet, copyText, numOr } from "./ui";
-import { shareUrl } from "../lib/remote";
+import { keyFromLink, shareUrl } from "../lib/remote";
 
 const STATUSES: BookingStatus[] = ["未確認", "未予約", "予約済み", "キャンセル"];
 
@@ -19,15 +19,20 @@ export function HomeTab({ s, go }: { s: Store; go: (tab: string) => void }) {
     <div className="stack">
       {s.conflict && (
         <section className="card conflict" role="alert">
-          <h2>保存データが2つあります</h2>
+          <h2>別々に入力されたデータが2つあります</h2>
           <p className="small">
             この端末のデータ（{s.trip.meta.title}・費用{s.trip.costs.length}件・予定{s.trip.itinerary.length}件）と、
             クラウドのデータ（{s.conflict.meta.title}・費用{s.conflict.costs.length}件・予定{s.conflict.itinerary.length}件）が別々に入力されています。
             使う方を選んでください。選ばなかった方もこの端末に退避され、「共有 → バックアップ」から戻せます。
           </p>
-          <div className="row wrap">
-            <button className="btn primary" onClick={() => s.resolveConflict("local")}>この端末のデータを使う</button>
-            <button className="btn" onClick={() => s.resolveConflict("cloud")}>クラウドのデータを使う</button>
+          <div className="stack tight">
+            <button className="btn primary" onClick={() => s.resolveConflict("cloud")}>共有されているデータを使う（おすすめ）</button>
+            <ConfirmButton
+              className="btn"
+              label="この端末のデータで共有データを置き換える"
+              confirmLabel="もう一度押すと置き換えます（元のデータは履歴から戻せます）"
+              onConfirm={() => s.resolveConflict("local")}
+            />
           </div>
         </section>
       )}
@@ -273,9 +278,14 @@ export function ShareLinkCard({ s, always = false }: { s: Store; always?: boolea
   if (!s.shareKey) {
     return (
       <section className="card share-card">
-        <h2>3人で共有する</h2>
-        <p className="small">共有URLを作ると、このURLを開いた3人が同じ内容を見て、それぞれ編集できます。今この端末に入っている内容がそのまま共有されます。</p>
-        <button className="btn primary" onClick={s.createShareKey}>共有URLを作る</button>
+        <h2>3人の旅行を開く</h2>
+        <p className="small">LINEなどで共有URLを受け取っている人は、そのURLを開くか、下に貼り付けてください。いつもの旅行の内容が出ます。</p>
+        <JoinByLink s={s} />
+        <details className="new-trip">
+          <summary>まだ共有URLがない（最初の1人だけ）</summary>
+          <p className="small">新しく共有URLを作ると、今この端末に入っている内容で新しい旅行が始まります。すでにある旅行とは別になるので注意してください。</p>
+          <button className="btn" onClick={s.createShareKey}>新しい共有URLを作る</button>
+        </details>
       </section>
     );
   }
@@ -320,4 +330,25 @@ function Countdown({ start, end }: { start: string; end: string }) {
   const back = daysUntil(end);
   const label = d === 0 ? "今日出発" : back !== null && back < 0 ? "おかえりなさい" : "旅の途中";
   return <p className="countdown"><span className="cd-num word">{label}</span></p>;
+}
+
+function JoinByLink({ s }: { s: Store }) {
+  const [text, setText] = useState("");
+  const [err, setErr] = useState("");
+  return (
+    <form
+      className="row"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const k = keyFromLink(text);
+        if (!k) return setErr("共有URLの形式ではありません。#k= で終わるURLを全部貼り付けてください。");
+        setErr("");
+        s.joinShareKey(k);
+      }}
+    >
+      <input id="join-link" className="grow" value={text} onChange={(e) => setText(e.target.value)} placeholder="共有URLを貼り付け" autoComplete="off" />
+      <button className="btn primary" disabled={!text.trim()}>開く</button>
+      {err && <p className="warn-text small">{err}</p>}
+    </form>
+  );
 }

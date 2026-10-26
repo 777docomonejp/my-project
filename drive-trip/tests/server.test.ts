@@ -5,14 +5,17 @@ import { createDefaultTrip, mergeTrips, upsert } from "../src/lib/trip";
 
 function memStore(): TripStore & { rows: Map<string, { json: string; version: number }> } {
   const rows = new Map<string, { json: string; version: number }>();
+  const hist = new Map<string, { version: number; json: string; savedAt: string }[]>();
   return {
     rows,
     get: async (id) => rows.get(id) ?? null,
     put: async (id, json, base) => {
       if ((rows.get(id)?.version ?? 0) !== base) return null;
       rows.set(id, { json, version: base + 1 });
+      hist.set(id, [{ version: base + 1, json, savedAt: new Date(base).toISOString() }, ...(hist.get(id) ?? [])]);
       return base + 1;
     },
+    history: async (id, limit) => (hist.get(id) ?? []).slice(0, limit),
   };
 }
 const KEY = "abcdefghijklmnopqrstuvwx";
@@ -86,5 +89,30 @@ describe("同期（2人が同時に保存）", () => {
     expect(final.messages.map((m: { id: string }) => m.id).sort()).toEqual(["ma", "mb"]);
     ua();
     ub();
+  });
+});
+
+describe("保存の履歴", () => {
+  it("保存のたびに版が残り、一覧と各版の中身を取り出せる", async () => {
+    const s = memStore();
+    const t1 = createDefaultTrip(1);
+    const t2 = upsert(t1, "messages", { id: "m", updatedAt: 0, authorId: "x", text: "hi", createdAt: 1 }, 5);
+    await call(s, "PUT", { json: JSON.stringify(t1), baseVersion: 0 });
+    await call(s, "PUT", { json: JSON.stringify(t2), baseVersion: 1 });
+    const list = await (await handle(new Request(`http://x/api/trip?k=${KEY}&history=1`), s)).json();
+    expect(list.versions.map((v: { version: number }) => v.version)).toEqual([2, 1]);
+    expect(list.versions[0].summary.messages).toBe(1);
+    const v1 = await (await handle(new Request(`http://x/api/trip?k=${KEY}&history=1&version=1`), s)).json();
+    expect(JSON.parse(v1.json)).toEqual(t1);
+    expect((await handle(new Request(`http://x/api/trip?k=${KEY}&history=1&version=9`), s)).status).toBe(404);
+  });
+});
+
+import { keyFromLink } from "../src/lib/remote";
+describe("共有URLの貼り付け", () => {
+  it("URL全体・合言葉だけ・関係ない文字", () => {
+    expect(keyFromLink(`https://my-project-drive-trip.vercel.app/#k=${KEY}`)).toBe(KEY);
+    expect(keyFromLink(`  ${KEY} `)).toBe(KEY);
+    expect(keyFromLink("https://example.com/")).toBe("");
   });
 });

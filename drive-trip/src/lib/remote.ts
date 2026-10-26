@@ -3,6 +3,8 @@
 export interface Snapshot {
   exists: boolean;
   data(): Record<string, unknown> | undefined;
+  /** claude.ai の db：サーバーの答えがまだ届いていない仮の結果なら true */
+  metadata?: { fromCache?: boolean };
 }
 
 export interface CloudDoc {
@@ -161,4 +163,30 @@ export function httpDoc(key: string, opts: Options = {}): CloudDoc {
       version = ((await r.json()) as { version: number }).version;
     },
   };
+}
+
+/** 貼り付けられた共有URL（または合言葉そのもの）から共有キーを取り出す */
+export function keyFromLink(text: string): string {
+  const s = text.trim();
+  const m = /[#&]k=([A-Za-z0-9_-]{22,64})/.exec(s);
+  if (m) return m[1];
+  return isShareKey(s) ? s : "";
+}
+
+export interface HistoryEntry {
+  version: number;
+  savedAt: string;
+  summary: { title: string; costs: number; itinerary: number; messages: number; spots: number; hotels: number } | null;
+}
+
+export async function fetchHistory(key: string): Promise<HistoryEntry[]> {
+  const r = await fetch(`/api/trip?k=${encodeURIComponent(key)}&history=1`, { cache: "no-store" });
+  if (!r.ok) throw new Error("履歴を読み込めませんでした");
+  return ((await r.json()) as { versions: HistoryEntry[] }).versions;
+}
+
+export async function fetchVersion(key: string, version: number): Promise<string> {
+  const r = await fetch(`/api/trip?k=${encodeURIComponent(key)}&history=1&version=${version}`, { cache: "no-store" });
+  if (!r.ok) throw new Error("その版を読み込めませんでした");
+  return ((await r.json()) as { json: string }).json;
 }
