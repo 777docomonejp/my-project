@@ -39,16 +39,40 @@ npm run build                    # dist/index.html（1ファイル）を作成
 
 スマートフォンから試すには `npm run dev -- --host` を実行し、同じWi-Fiのスマホで表示されたアドレスを開きます。
 
-## 無料で公開する方法
+## 3人共有版を無料で公開する（Vercel + Neon）
 
-`npm run build` で作られる **`dist/index.html` 1ファイルだけ**で動きます。どれもクレジットカード不要の無料枠で公開できます。
+らてのアプリと同じ Vercel（Hobby・無料）と Neon（Free・無料）を使います。カード登録は不要です。
+共有URLを開いた3人が、アカウントなしで同じ内容を見て編集できます。
 
-- **Netlify Drop**（いちばん簡単）：https://app.netlify.com/drop に `dist` フォルダをドラッグ＆ドロップ。無料アカウント登録が必要。
-- **Cloudflare Pages**：無料アカウントで「Direct Upload」から `dist` をアップロード。
-- **GitHub Pages**：公開リポジトリなら無料。非公開リポジトリでの Pages は有料プランが必要なので注意。
+1. **Neon：旅行アプリ用のデータベースを作る**
+   - https://console.neon.tech を開き、らてのアプリで使っているプロジェクトを選ぶ
+   - 左メニュー「Databases」→「New database」→ 名前を `drivetrip` にして作成
+     （らてのデータベースとは別にするため。らての中身には一切触れません）
+   - 「Connect」で Database を `drivetrip` に切り替え、表示される接続文字列（`postgresql://…`）をコピー
+2. **Vercel：プロジェクトを追加する**
+   - https://vercel.com →「Add New…」→「Project」→ リポジトリ `777docomonejp/my-project` を「Import」
+   - 「Root Directory」の「Edit」を押して `drive-trip` を選ぶ（ここが一番大事。らてのアプリとは別のプロジェクトになります）
+   - Framework Preset が「Vite」になっていることを確認
+   - 「Environment Variables」に `DATABASE_URL` を追加し、手順1の接続文字列を貼る
+   - 「Deploy」を押す。数分で `https://<名前>.vercel.app` が発行されます
+3. **使い始める**
+   - 発行されたURLを開き、ホームの「共有URLを作る」を押す
+   - 表示された「このURLを2人に送る」のURLをコピーして LINE で送る
 
-公開したURLを3人で開き、iPhoneでは Safari の共有ボタン →「ホーム画面に追加」でアプリのように使えます。
-claude.ai の Artifact として公開した版もあります（その版では外部の地図画像が読み込めないため、地図はピンの位置関係だけの表示になります）。
+### claude.ai 版から内容を引っ越す
+1. claude.ai 版で「共有 → バックアップ → テキストでコピー」
+2. Vercel 版で「共有URLを作る」を押す前に「共有 → バックアップ」の貼り付け欄に貼って「貼り付けから復元」
+3. ホームで「共有URLを作る」
+
+### しくみと無料枠
+- 変更は1〜2秒で保存され、開いているほかの人の画面にも20秒ほどで反映されます。2人が同時に編集しても項目ごとに統合されるので、どちらかの変更が消えることはありません。
+- 共有URLの `#k=` 以降が合言葉の役目をします（144bit のランダム値。推測できません）。データベースにはその値そのものではなくハッシュ値を保存します。
+- 画面を見ていない間と、15分以上操作がない間はサーバーへの確認を止め、Neon の無料枠（計算時間）を使いすぎないようにしています。無料枠を超えても課金はされず、一時的に止まるだけです。Vercel・Neon とも有料プランへの切り替えはしないでください。
+- ローカルで共有版を試す：`DRIVE_TRIP_SERVER=1 npm run dev`（データベースの代わりにメモリに保存します）
+
+## ほかの無料公開先（共有は共有コード方式になります）
+
+`npm run build` で作られる `dist/index.html` 1ファイルだけでも動きます。Netlify Drop（https://app.netlify.com/drop）にドラッグ＆ドロップするなど。GitHub Pages は非公開リポジトリだと有料プランが必要なので注意。
 
 ## 地図とデータについて
 
@@ -75,5 +99,7 @@ Vite + React + TypeScript、地図は Leaflet。サーバー・データベー�
 - `src/lib/schedule.ts`：旅程の並べ替え・重複検知
 - `src/lib/trip.ts`：初期データ、保存・読み込み、共有データのマージ
 - `src/lib/share.ts`：共有コードの暗号化・復号
+- `src/lib/remote.ts`：Vercel 版のサーバー同期
+- `api/trip.ts`：保存API（Vercel Functions + Neon）
 - `src/data/spots.json`：同梱の観光地データ
-- `tests/`：単体テスト（26件）
+- `tests/`：単体テスト（41件）

@@ -3,7 +3,8 @@ import type { BookingStatus, Hotel, Member, TripMeta } from "../types";
 import { newId } from "../lib/trip";
 import { summarize, yen } from "../lib/cost";
 import { fmtDate, type Store } from "../state";
-import { Badge, ConfirmButton, Field, Sheet, numOr } from "./ui";
+import { Badge, ConfirmButton, Field, Sheet, copyText, numOr } from "./ui";
+import { shareUrl } from "../lib/remote";
 
 const STATUSES: BookingStatus[] = ["未確認", "未予約", "予約済み", "キャンセル"];
 
@@ -30,6 +31,7 @@ export function HomeTab({ s, go }: { s: Store; go: (tab: string) => void }) {
           </div>
         </section>
       )}
+      <ShareLinkCard s={s} />
       <section className="card hero">
         <div className="route">
           <span>{trip.meta.origin}</span>
@@ -237,8 +239,9 @@ function HotelSheet({ hotel, isNew, onSave, onDelete, onClose }: { hotel: Hotel;
 
 const CLOUD_TEXT: Record<Store["cloud"], string> = {
   off: "この端末だけに保存中。ほかの端末やホーム画面のアプリとは自動で共有されません",
+  nokey: "まだ3人で共有していません（この端末だけに保存中）",
   connecting: "クラウドに接続中…",
-  saved: "クラウドに保存済み。ほかの端末やホーム画面のアプリで開いても同じ内容が出ます",
+  saved: "保存済み。共有URLを開いた3人とも同じ内容が見られます",
   saving: "クラウドに保存中…",
   readonly: "閲覧のみの権限のため、変更はこの端末だけに保存されます",
   error: "クラウドに接続できません。変更はこの端末に保存され、つながると保存されます",
@@ -247,4 +250,35 @@ const CLOUD_TEXT: Record<Store["cloud"], string> = {
 
 function CloudLine({ s }: { s: Store }) {
   return <p className={`cloud-line ${s.cloud}`}>{CLOUD_TEXT[s.cloud]}</p>;
+}
+
+/** Vercel 版：共有URLの作成と、2人に送るためのコピー */
+export function ShareLinkCard({ s, always = false }: { s: Store; always?: boolean }) {
+  const [msg, setMsg] = useState("");
+  if (!s.server) return null;
+  if (!s.shareKey) {
+    return (
+      <section className="card share-card">
+        <h2>3人で共有する</h2>
+        <p className="small">共有URLを作ると、このURLを開いた3人が同じ内容を見て、それぞれ編集できます。今この端末に入っている内容がそのまま共有されます。</p>
+        <button className="btn primary" onClick={s.createShareKey}>共有URLを作る</button>
+      </section>
+    );
+  }
+  if (!always && s.me) return null;
+  const url = shareUrl(s.shareKey);
+  return (
+    <section className="card share-card">
+      <h2>このURLを2人に送る</h2>
+      <p className="small">URLを知っている人は誰でも見て編集できます。3人以外には教えないでください。</p>
+      <input id="share-url" readOnly value={url} onFocus={(e) => e.currentTarget.select()} aria-label="共有URL" />
+      <button
+        className="btn primary"
+        onClick={async () => setMsg((await copyText(url)) ? "コピーしました。LINEに貼って送ってください。" : "上の欄を長押ししてコピーしてください。")}
+      >
+        URLをコピー
+      </button>
+      {msg && <p className="ok-text small">{msg}</p>}
+    </section>
+  );
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import spotsJson from "./data/spots.json";
 import type { Collection, Spot, Trip } from "./types";
+import { httpDoc, newShareKey, putInUrl, readShareKey, remember, type CloudDoc } from "./lib/remote";
 import { decideCloud, loadTrip, mergeTrips, normalizeTrip, readStash, remove, safeStorage, saveTrip, stashTrip, upsert } from "./lib/trip";
 
 export const BUILTIN_SPOTS = spotsJson as Spot[];
@@ -24,15 +25,12 @@ function writePref(key: string, v: string) {
   }
 }
 
-// claude.ai のページで使えるクラウド保存（db）。それ以外の場所で開いた場合は端末保存のみ。
-interface CloudDoc {
-  get(): Promise<{ exists: boolean; data(): Record<string, unknown> | undefined }>;
-  set(d: Record<string, unknown>): Promise<void>;
-  onSnapshot(next: (s: { exists: boolean; data(): Record<string, unknown> | undefined }) => void, err?: (e: { code: string }) => void): () => void;
-}
+// クラウド保存：claude.ai で開いたときはページの db、Vercel 版では自前サーバー。どちらも無ければ端末保存のみ。
 type ClaudeRuntime = { use?: (n: string) => Promise<{ doc(p: string): CloudDoc } | null> };
+declare const __SERVER__: boolean;
+const SERVER = typeof __SERVER__ !== "undefined" && __SERVER__;
 
-export type CloudStatus = "off" | "connecting" | "saved" | "saving" | "readonly" | "error" | "conflict";
+export type CloudStatus = "off" | "nokey" | "connecting" | "saved" | "saving" | "readonly" | "error" | "conflict";
 
 function parseCloud(d: Record<string, unknown> | undefined): Trip | null {
   try {
@@ -70,17 +68,25 @@ export function useTripStore() {
   const tripRef = useRef(trip);
   tripRef.current = trip;
 
+  const [shareKey, setShareKey] = useState(() => (SERVER ? readShareKey() : ""));
+
   useEffect(() => {
     let unsub: (() => void) | undefined;
     let alive = true;
     (async () => {
       const claude = (globalThis as unknown as { claude?: ClaudeRuntime }).claude;
-      if (!claude?.use) return;
-      setCloud("connecting");
-      const db = await claude.use("db").catch(() => null);
+      let ref: CloudDoc | null = null;
+      if (claude?.use) {
+        setCloud("connecting");
+        const db = await claude.use("db").catch(() => null);
+        ref = db ? db.doc("trips/main") : null;
+      } else if (SERVER) {
+        if (!shareKey) return setCloud("nokey");
+        setCloud("connecting");
+        ref = httpDoc(shareKey);
+      }
       if (!alive) return;
-      if (!db) return setCloud("off");
-      const ref = db.doc("trips/main");
+      if (!ref) return setCloud("off");
       doc.current = ref;
       unsub = ref.onSnapshot(
         (snap) => {
@@ -99,13 +105,22 @@ export function useTripStore() {
           setCloud((c) => (c === "readonly" ? c : "saved"));
           if (d === "push") setTrip((cur) => ({ ...cur })); // 保存処理を走らせる
         },
-        () => setCloud("error"),
+        () => setCloud((c) => (c === "conflict" ? c : "error")),
       );
     })();
     return () => {
       alive = false;
       unsub?.();
+      doc.current = null;
+      ready.current = false;
     };
+  }, [shareKey]);
+
+  const createShareKey = useCallback(() => {
+    const k = newShareKey();
+    remember(k);
+    putInUrl(k);
+    setShareKey(k);
   }, []);
 
   // 変更をクラウドへ（まとめて1.5秒後に1回）
@@ -118,7 +133,7 @@ export function useTripStore() {
       setNotice("データが大きくなりすぎてクラウドに保存できません。古いチャットを削除するか、バックアップを取ってください。");
       return;
     }
-    setCloud("saving");
+    if (cloud !== "error") setCloud("saving");
     const timer = setTimeout(async () => {
       try {
         await ref.set({ json, savedAt: Date.now() });
@@ -126,9 +141,11 @@ export function useTripStore() {
         setCloud("saved");
       } catch (e) {
         const code = (e as { code?: string })?.code;
+        if (code === "conflict") return; // 最新を統合したあと自動でもう一度保存される
+        if (code === "too_large") setNotice("データが大きくなりすぎて保存できません。古いチャットを削除してください。");
         setCloud(code === "invalid_argument" ? "readonly" : "error");
       }
-    }, 1500);
+    }, cloud === "error" ? 15_000 : 1500); // つながらないときは15秒ごとに再試行
     return () => clearTimeout(timer);
   }, [trip, cloud]);
 
@@ -182,6 +199,9 @@ export function useTripStore() {
     conflict,
     resolveConflict,
     stash: () => readStash(kv),
+    shareKey,
+    createShareKey,
+    server: SERVER,
   };
 }
 

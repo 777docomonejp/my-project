@@ -4,6 +4,7 @@ import { decodeShare, encodeShare, generatePassphrase } from "../lib/share";
 import { fmtTime, type Store } from "../state";
 import type { Trip } from "../types";
 import { tallyVotes, VoteButtons } from "./SpotDetail";
+import { ShareLinkCard } from "./HomeTab";
 import { ConfirmButton, Field, copyText } from "./ui";
 
 export function ShareTab({ s, onOpenSpot }: { s: Store; onOpenSpot: (id: string) => void }) {
@@ -94,6 +95,18 @@ function Votes({ s, onOpenSpot }: { s: Store; onOpenSpot: (id: string) => void }
 }
 
 function Sync({ s }: { s: Store }) {
+  if (s.server && s.shareKey) {
+    return (
+      <section className="stack">
+        <ShareLinkCard s={s} always />
+        <p className="muted small">共有URLを開いた3人の変更は自動で保存され、20秒ほどでほかの人の画面にも反映されます。保存ボタンはありません。</p>
+      </section>
+    );
+  }
+  return <SyncByCode s={s} />;
+}
+
+function SyncByCode({ s }: { s: Store }) {
   const [pass, setPass] = useState(s.pass);
   const [code, setCode] = useState("");
   const [incoming, setIncoming] = useState("");

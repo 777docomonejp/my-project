@@ -348,3 +348,5 @@ section > .list { background: var(--surface); border: 1px solid var(--line); bor
 .cloud-line.saving::before, .cloud-line.connecting::before { background: var(--est); }
 .cloud-line.error::before, .cloud-line.conflict::before, .cloud-line.readonly::before { background: var(--warn); }
 .card.conflict { border-color: var(--warn); background: var(--warn-bg); }
+.card.share-card { border-color: var(--sign); background: var(--accent-soft); }
+.share-card input { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 14px; }
