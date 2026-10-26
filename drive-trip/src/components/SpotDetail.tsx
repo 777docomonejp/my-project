@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { SpotStatus, VoteValue } from "../types";
 import { newId } from "../lib/trip";
-import { fmtDrive, fmtTime, mapsNavUrl, mapsSearchUrl, type Store } from "../state";
+import { baseNames, fmtDrive, fmtTime, mapsNavUrl, mapsSearchUrl, type Store } from "../state";
 import { STATUS_LABEL } from "./SpotsTab";
 import { Badge, ConfirmButton, Field, Sheet } from "./ui";
 
@@ -64,8 +64,8 @@ export function SpotDetail({ s, spotId, onClose }: { s: Store; spotId: string; o
         <dl className="kv">
           {sp.driveMin !== undefined && (
             <>
-              <dt>戸田から</dt>
-              <dd>車で{fmtDrive(sp.driveMin)}<span className="muted small">（渋滞なしの目安。年末年始は大幅に増えます）</span></dd>
+              <dt>所要時間</dt>
+              <dd><b>{baseNames(s.trip.meta).full}から</b>車で{fmtDrive(sp.driveMin)}<span className="muted small">（渋滞なしの目安。年末年始は大幅に増えます）</span></dd>
             </>
           )}
           <dt>所在地</dt>

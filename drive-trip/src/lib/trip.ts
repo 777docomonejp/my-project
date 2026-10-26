@@ -23,6 +23,7 @@ export function createDefaultTrip(now = Date.now()): Trip {
       endDate: "",
       origin: "大阪府豊中市",
       meetPoint: "埼玉県戸田市",
+      baseName: "しょーいちの家（戸田）",
       car: "友人の普通車（ETCあり）",
       notes: "帰りの日程・観光日程は未定。決まったら編集してください。",
     },

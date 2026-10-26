@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { BookingStatus, Hotel, Member, TripMeta } from "../types";
 import { newId } from "../lib/trip";
 import { summarize, yen } from "../lib/cost";
-import { fmtDate, type Store } from "../state";
+import { DEFAULT_BASE, fmtDate, type Store } from "../state";
 import { Badge, ConfirmButton, Field, Sheet, copyText, numOr } from "./ui";
 import { shareUrl } from "../lib/remote";
 
@@ -198,6 +198,9 @@ function MetaSheet({ meta, onSave, onClose }: { meta: TripMeta; onSave: (m: Trip
         </div>
         <Field label="出発地"><input id="meta-origin" value={m.origin} onChange={set("origin")} /></Field>
         <Field label="合流地点"><input id="meta-meet" value={m.meetPoint} onChange={set("meetPoint")} /></Field>
+        <Field label="所要時間の起点の呼び名" hint="観光地の「○○から車で約40分」の○○に表示されます（時間は戸田市からの目安）">
+          <input id="meta-base" value={m.baseName ?? DEFAULT_BASE} onChange={set("baseName")} />
+        </Field>
         <Field label="車"><input id="meta-car" value={m.car} onChange={set("car")} /></Field>
         <Field label="メモ"><textarea id="meta-notes" rows={3} value={m.notes} onChange={set("notes")} /></Field>
         <button className="btn primary" type="submit">保存</button>

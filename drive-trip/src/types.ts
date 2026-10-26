@@ -126,6 +126,8 @@ export interface TripMeta extends Rec {
   endDate: string;
   origin: string;
   meetPoint: string;
+  /** 所要時間の起点の呼び名（例：しょーいちの家（戸田）） */
+  baseName?: string;
   car: string;
   notes: string;
 }

@@ -221,6 +221,14 @@ export function fmtDate(d: string): string {
   return `${Number(m[2])}/${Number(m[3])}（${"日月火水木金土"[dt.getDay()]}）`;
 }
 
+export const DEFAULT_BASE = "しょーいちの家（戸田）";
+
+/** 所要時間の起点。長い名前と、一覧の小さいラベル用の短い名前 */
+export function baseNames(meta: { baseName?: string }) {
+  const full = meta.baseName?.trim() || DEFAULT_BASE;
+  return { full, short: full.replace(/[（(].*?[）)]/g, "").trim() || full };
+}
+
 /** 車の時間：40 → 約40分、100 → 約1時間40分 */
 export function fmtDrive(min: number): string {
   if (min < 60) return `約${min}分`;

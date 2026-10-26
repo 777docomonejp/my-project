@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { GENRES, PREFS, type Genre, type Pref, type Spot, type SpotStatus } from "../types";
 import { newId } from "../lib/trip";
-import { fmtDrive, type Store } from "../state";
+import { baseNames, fmtDrive, type Store } from "../state";
 import { MapView } from "./MapView";
 import { Field, Sheet, numOr } from "./ui";
 
@@ -28,6 +28,7 @@ export function SpotsTab({ s, onOpen }: { s: Store; onOpen: (id: string) => void
   const [status, setStatus] = useState<SpotStatus | "fav" | "">("");
   const [view, setView] = useState<"list" | "map">("list");
   const [sort, setSort] = useState<"default" | "near">("default");
+  const base = baseNames(s.trip.meta);
   const [adding, setAdding] = useState(false);
 
   const stateMap = useMemo(() => new Map(s.trip.spotStates.map((x) => [x.id, x])), [s.trip.spotStates]);
@@ -74,10 +75,10 @@ export function SpotsTab({ s, onOpen }: { s: Store; onOpen: (id: string) => void
         </select>
         <select id="f-sort" value={sort} onChange={(e) => setSort(e.target.value as "default" | "near")} aria-label="並び順">
           <option value="default">地域順</option>
-          <option value="near">戸田から近い順</option>
+          <option value="near">{base.short}から近い順</option>
         </select>
       </div>
-      <p className="muted small">{filtered.length}件。車の時間は戸田市から渋滞なしの目安です（年末年始の渋滞で大きく増えます）。座標は概略位置です。正確な場所・営業日・料金はGoogleマップや公式サイトで確認してください。</p>
+      <p className="muted small">{filtered.length}件。車の時間は<b>{base.full}</b>から、渋滞なしの目安です（年末年始の渋滞で大きく増えます）。座標は概略位置です。正確な場所・営業日・料金はGoogleマップや公式サイトで確認してください。</p>
 
       {view === "map" && <MapView spots={filtered} statusOf={statusOf} onSelect={onOpen} />}
 
@@ -103,9 +104,12 @@ export function SpotsTab({ s, onOpen }: { s: Store; onOpen: (id: string) => void
                   </span>
                 </span>
                 {sp.driveMin !== undefined && (
-                  <span className="drive-pill" aria-label={`戸田から車で${fmtDrive(sp.driveMin)}`}>
+                  <span className="drive-pill" aria-label={`${base.full}から車で${fmtDrive(sp.driveMin)}`}>
+                    <span className="drive-from">{base.short}から</span>
+                    <span className="drive-time">
                     <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11v6a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H8v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1zm2.2 0h9.6l-1-3.2H8.2zM7.5 14.5a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4zm9 0a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4z"/></svg>
                     {fmtDrive(sp.driveMin).replace("約", "")}
+                    </span>
                   </span>
                 )}
               </button>
