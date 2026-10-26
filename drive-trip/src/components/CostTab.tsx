@@ -14,7 +14,7 @@ export function CostTab({ s }: { s: Store }) {
 
   return (
     <div className="stack">
-      <section className="card">
+      <section className="card total-card">
         <div className="total">
           <span className="tile-label">合計</span>
           <span className="tile-num">{yen(sum.total)}</span>

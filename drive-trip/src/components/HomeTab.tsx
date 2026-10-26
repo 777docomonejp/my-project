@@ -32,26 +32,37 @@ export function HomeTab({ s, go }: { s: Store; go: (tab: string) => void }) {
         </section>
       )}
       <ShareLinkCard s={s} />
-      <section className="card hero">
-        <div className="route">
-          <span>{trip.meta.origin}</span>
-          <span className="route-line" aria-hidden="true" />
-          <span>{trip.meta.meetPoint}</span>
+      <section className="hero">
+        <div className="hero-sign">
+          <p className="eyebrow">{trip.meta.title}</p>
+          <Countdown start={trip.meta.startDate} end={trip.meta.endDate} />
+          <div className="route">
+            <div className="route-end">
+              <small>出発</small>
+              <strong>{trip.meta.origin}</strong>
+            </div>
+            <span className="route-line" aria-hidden="true" />
+            <div className="route-end right">
+              <small>合流</small>
+              <strong>{trip.meta.meetPoint}</strong>
+            </div>
+          </div>
         </div>
-        <h1>{trip.meta.title}</h1>
-        <dl className="kv">
-          <dt>出発</dt>
-          <dd>{trip.meta.departure || "未定"}</dd>
-          <dt>帰り</dt>
-          <dd>{trip.meta.endDate ? fmtDate(trip.meta.endDate) : "未定"}</dd>
-          <dt>車</dt>
-          <dd>{trip.meta.car}</dd>
-        </dl>
-        {trip.meta.notes && <p className="muted">{trip.meta.notes}</p>}
-        <button className="btn" onClick={() => setEditMeta(true)}>
-          旅行の基本情報を編集
-        </button>
-        <CloudLine s={s} />
+        <div className="hero-body">
+          <dl className="kv">
+            <dt>出発</dt>
+            <dd>{trip.meta.departure || "未定"}</dd>
+            <dt>帰り</dt>
+            <dd>{trip.meta.endDate ? fmtDate(trip.meta.endDate) : "未定"}</dd>
+            <dt>車</dt>
+            <dd>{trip.meta.car}</dd>
+          </dl>
+          {trip.meta.notes && <p className="muted small">{trip.meta.notes}</p>}
+          <button className="btn" onClick={() => setEditMeta(true)}>
+            旅行の基本情報を編集
+          </button>
+          <CloudLine s={s} />
+        </div>
       </section>
 
       <section className="tiles">
@@ -281,4 +292,29 @@ export function ShareLinkCard({ s, always = false }: { s: Store; always?: boolea
       {msg && <p className="ok-text small">{msg}</p>}
     </section>
   );
+}
+
+/** 出発日までの日数（端末の日付で計算） */
+export function daysUntil(date: string, today = new Date()): number | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!m) return null;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  return Math.round((d.getTime() - t0.getTime()) / 86_400_000);
+}
+
+function Countdown({ start, end }: { start: string; end: string }) {
+  const d = daysUntil(start);
+  if (d === null) return <p className="countdown"><span className="cd-label">出発日は未定</span></p>;
+  if (d > 0)
+    return (
+      <p className="countdown">
+        <span className="cd-label">出発まで あと</span>
+        <span className="cd-num">{d}</span>
+        <span className="cd-label">日</span>
+      </p>
+    );
+  const back = daysUntil(end);
+  const label = d === 0 ? "今日出発" : back !== null && back < 0 ? "おかえりなさい" : "旅の途中";
+  return <p className="countdown"><span className="cd-num word">{label}</span></p>;
 }

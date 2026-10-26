@@ -34,9 +34,12 @@ export function PlanTab({ s, onOpenSpot }: { s: Store; onOpenSpot: (id: string) 
         </div>
       )}
       {groups.length === 0 && <p className="empty">予定がありません。「＋予定を追加」か、観光地の詳細から「旅程表に追加」してください。</p>}
-      {groups.map(([date, items]) => (
+      {groups.map(([date, items], dayIdx) => (
         <section key={date} className="day">
-          <h3 className="day-head">{fmtDate(date)}</h3>
+          <h3 className="day-head">
+            <span className="day-num">DAY {dayIdx + 1}</span>
+            {fmtDate(date)}
+          </h3>
           <ol className="timeline">
             {items.map((it, i) => {
               const stay = stayMinutes(it);

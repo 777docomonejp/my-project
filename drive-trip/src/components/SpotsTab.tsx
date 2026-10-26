@@ -5,6 +5,20 @@ import { fmtDrive, type Store } from "../state";
 import { MapView } from "./MapView";
 import { Field, Sheet, numOr } from "./ui";
 
+export const GENRE_SHORT: Record<Genre, string> = {
+  "神社・寺": "社寺",
+  街歩き: "街",
+  "自然・絶景": "絶景",
+  温泉: "温泉",
+  "博物館・施設": "施設",
+  "公園・花": "公園",
+  グルメ: "食",
+  "夜景・イルミ": "夜景",
+  サウナ: "サ",
+  居酒屋: "酒場",
+  ちゃんこ: "鍋",
+};
+
 export const STATUS_LABEL: Record<SpotStatus, string> = { want: "行きたい", hold: "保留", no: "行かない" };
 
 export function SpotsTab({ s, onOpen }: { s: Store; onOpen: (id: string) => void }) {
@@ -73,7 +87,10 @@ export function SpotsTab({ s, onOpen }: { s: Store; onOpen: (id: string) => void
           return (
             <li key={sp.id}>
               <button className="spot" onClick={() => onOpen(sp.id)}>
-                <span className={`dot ${st?.status ?? "none"}`} aria-hidden="true" />
+                <span className={`genre-badge g${GENRES.indexOf(sp.genre)}`} aria-hidden="true">
+                  {GENRE_SHORT[sp.genre]}
+                  {st?.status && <span className={`dot ${st.status}`} />}
+                </span>
                 <span className="spot-main">
                   <span className="spot-name">
                     {st?.favorite && <span className="star" aria-label="お気に入り">★</span>}
@@ -81,11 +98,16 @@ export function SpotsTab({ s, onOpen }: { s: Store; onOpen: (id: string) => void
                   </span>
                   <span className="muted small">
                     {sp.pref}・{sp.genre}
-                    {sp.driveMin !== undefined && <span className="drive">・車で{fmtDrive(sp.driveMin)}</span>}
                     {st?.status && `・${STATUS_LABEL[st.status]}`}
                     {sp.custom && "・追加した場所"}
                   </span>
                 </span>
+                {sp.driveMin !== undefined && (
+                  <span className="drive-pill" aria-label={`戸田から車で${fmtDrive(sp.driveMin)}`}>
+                    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11v6a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H8v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1zm2.2 0h9.6l-1-3.2H8.2zM7.5 14.5a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4zm9 0a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4z"/></svg>
+                    {fmtDrive(sp.driveMin).replace("約", "")}
+                  </span>
+                )}
               </button>
             </li>
           );
