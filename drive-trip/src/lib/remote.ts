@@ -165,7 +165,7 @@ export function httpDoc(key: string, opts: Options = {}): CloudDoc {
   };
 }
 
-/** 貼り付けられた共有URL（または合言葉そのもの）から共有キーを取り出す */
+/** 貼り付けられた共有URL（または #k= 以降の部分だけ）から共有キーを取り出す */
 export function keyFromLink(text: string): string {
   const s = text.trim();
   const m = /[#&]k=([A-Za-z0-9_-]{22,64})/.exec(s);

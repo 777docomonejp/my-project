@@ -1,25 +1,23 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { createDefaultTrip, mergeTrips, newId, normalizeTrip } from "../lib/trip";
-import { decodeShare, encodeShare, generatePassphrase } from "../lib/share";
 import { fetchHistory, fetchVersion, type HistoryEntry } from "../lib/remote";
 import { fmtTime, type Store } from "../state";
-import type { Trip } from "../types";
 import { tallyVotes, VoteButtons } from "./SpotDetail";
 import { ShareLinkCard } from "./HomeTab";
-import { ConfirmButton, Field, copyText } from "./ui";
+import { ConfirmButton, copyText } from "./ui";
 
 export function ShareTab({ s, onOpenSpot }: { s: Store; onOpenSpot: (id: string) => void }) {
-  const [section, setSection] = useState<"chat" | "vote" | "sync" | "backup">("chat");
+  const [section, setSection] = useState<"url" | "chat" | "vote" | "backup">("url");
   return (
     <div className="stack">
       <div className="seg wide" role="tablist">
-        {([["chat", "チャット"], ["vote", "投票"], ["sync", "同期"], ["backup", "バックアップ"]] as const).map(([k, v]) => (
+        {([["url", "共有URL"], ["chat", "チャット"], ["vote", "投票"], ["backup", "バックアップ"]] as const).map(([k, v]) => (
           <button key={k} role="tab" aria-selected={section === k} className={section === k ? "on" : ""} onClick={() => setSection(k)}>{v}</button>
         ))}
       </div>
       {section === "chat" && <Chat s={s} onOpenSpot={onOpenSpot} />}
       {section === "vote" && <Votes s={s} onOpenSpot={onOpenSpot} />}
-      {section === "sync" && <Sync s={s} />}
+      {section === "url" && <ShareUrl s={s} />}
       {section === "backup" && <Backup s={s} />}
     </div>
   );
@@ -30,7 +28,7 @@ function Chat({ s, onOpenSpot }: { s: Store; onOpenSpot: (id: string) => void })
   const msgs = useMemo(() => [...s.trip.messages].sort((a, b) => a.createdAt - b.createdAt), [s.trip.messages]);
   return (
     <section className="stack">
-      <p className="muted small">メッセージはこの端末に保存され、「同期」で他のメンバーに届きます（リアルタイム配信ではありません）。</p>
+      <p className="muted small">メッセージは共有URLを開いている3人に届きます（20秒ほどで反映）。</p>
       {msgs.length === 0 && <p className="empty">まだメッセージはありません。</p>}
       <ul className="chat">
         {msgs.map((m) => {
@@ -95,101 +93,21 @@ function Votes({ s, onOpenSpot }: { s: Store; onOpenSpot: (id: string) => void }
   );
 }
 
-function Sync({ s }: { s: Store }) {
-  if (s.server && s.shareKey) {
+function ShareUrl({ s }: { s: Store }) {
+  if (!s.server) {
     return (
-      <section className="stack">
-        <ShareLinkCard s={s} always />
-        <p className="muted small">共有URLを開いた3人の変更は自動で保存され、20秒ほどでほかの人の画面にも反映されます。保存ボタンはありません。</p>
+      <section className="card stack">
+        <h2>共有URL</h2>
+        <p className="small">このページ（claude.ai 版）には共有URLはありません。3人で使うときは Vercel 版のアプリを開いてください。</p>
       </section>
     );
   }
-  return <SyncByCode s={s} />;
-}
-
-function SyncByCode({ s }: { s: Store }) {
-  const [pass, setPass] = useState(s.pass);
-  const [code, setCode] = useState("");
-  const [incoming, setIncoming] = useState("");
-  const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [pending, setPending] = useState<Trip | null>(null);
-  const out = useRef<HTMLTextAreaElement>(null);
-
-  const make = async () => {
-    setBusy(true);
-    setMsg(null);
-    try {
-      s.setPass(pass.trim());
-      const c = await encodeShare(s.trip, pass.trim());
-      setCode(c);
-      const copied = await copyText(c);
-      setMsg({ kind: "ok", text: copied ? "共有コードを作ってコピーしました。LINE等に貼り付けて送ってください。" : "共有コードを作りました。下の欄を長押しして全選択→コピーしてください。" });
-      if (!copied) setTimeout(() => out.current?.select(), 50);
-    } catch (e) {
-      setMsg({ kind: "err", text: e instanceof Error ? e.message : "作成に失敗しました" });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const load = async () => {
-    setBusy(true);
-    setMsg(null);
-    try {
-      const other = await decodeShare(incoming, pass.trim());
-      s.setPass(pass.trim());
-      if (other.tripId === s.trip.tripId) {
-        s.setTrip((t) => mergeTrips(t, other));
-        setIncoming("");
-        setMsg({ kind: "ok", text: "取り込みました。両方の変更を合わせました（同じ項目は新しい方を採用）。" });
-      } else {
-        setPending(other);
-      }
-    } catch (e) {
-      setMsg({ kind: "err", text: e instanceof Error ? e.message : "読み込みに失敗しました" });
-    } finally {
-      setBusy(false);
-    }
-  };
-
   return (
     <section className="stack">
-      <div className="card stack">
-        <h2>仕組み</h2>
-        <ol className="steps">
-          <li>1人が「合言葉」を作り、3人にだけ伝えます（LINEなど）。</li>
-          <li>変更した人が「共有コードを作る」→コードを送ります。</li>
-          <li>受け取った人は「コードを取り込む」に貼り付けます。両方の変更が合わさります。</li>
-        </ol>
-        <p className="muted small">コードは合言葉で暗号化されているので、コードだけが他人に見られても中身は読めません。サーバーは使わないため登録・料金は不要ですが、自動では同期されません。</p>
-      </div>
-      <Field label="合言葉（8文字以上・3人で同じもの）">
-        <div className="row">
-          <input id="sync-pass" className="grow" value={pass} onChange={(e) => setPass(e.target.value)} autoComplete="off" autoCapitalize="off" spellCheck={false} />
-          <button type="button" className="btn small" onClick={() => setPass(generatePassphrase())}>自動作成</button>
-        </div>
-      </Field>
-      <div className="card stack">
-        <h3>送る</h3>
-        <button className="btn primary" disabled={busy || pass.trim().length < 8} onClick={make}>共有コードを作る</button>
-        {code && <textarea id="sync-out" ref={out} readOnly rows={4} value={code} onFocus={(e) => e.currentTarget.select()} />}
-      </div>
-      <div className="card stack">
-        <h3>受け取る</h3>
-        <textarea id="sync-in" rows={4} value={incoming} onChange={(e) => setIncoming(e.target.value)} placeholder="DT1. で始まるコードを貼り付け" />
-        <button className="btn primary" disabled={busy || !incoming.trim() || pass.trim().length < 8} onClick={load}>コードを取り込む</button>
-      </div>
-      {pending && (
-        <div className="alert warn stack">
-          <span>このコードは別の旅行（{pending.meta.title}）のものです。参加すると、この端末の今のデータは置き換わります。</span>
-          <div className="row">
-            <button className="btn primary" onClick={() => { s.setTrip(pending); setPending(null); setIncoming(""); setMsg({ kind: "ok", text: "旅行に参加しました。ホームで自分の名前を選んでください。" }); }}>この旅行に参加する</button>
-            <button className="btn" onClick={() => setPending(null)}>やめる</button>
-          </div>
-        </div>
+      <ShareLinkCard s={s} always />
+      {s.shareKey && (
+        <p className="muted small">このURLを開いた3人の変更は自動で保存され、20秒ほどでほかの人の画面にも反映されます。保存ボタンはありません。</p>
       )}
-      {msg && <div className={`alert ${msg.kind === "ok" ? "ok" : "warn"}`} role="status">{msg.text}</div>}
     </section>
   );
 }

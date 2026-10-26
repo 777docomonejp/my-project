@@ -7,7 +7,6 @@ import { decideCloud, loadTrip, mergeTrips, normalizeTrip, readStash, remove, sa
 export const BUILTIN_SPOTS = spotsJson as Spot[];
 
 const ME_KEY = "drive-trip:me";
-const PASS_KEY = "drive-trip:pass";
 
 function readPref(key: string): string {
   try {
@@ -46,7 +45,6 @@ export function useTripStore() {
   const [trip, setTrip] = useState<Trip>(initial.trip);
   const [notice, setNotice] = useState<string | undefined>(initial.error);
   const [me, setMeState] = useState(readPref(ME_KEY));
-  const [pass, setPassState] = useState(readPref(PASS_KEY));
   // 読み込んだ直後は保存し直さない（自動バックアップを上書きしないため）
   const skipSave = useRef(initial.source === "saved");
 
@@ -196,11 +194,6 @@ export function useTripStore() {
     setMe: (v: string) => {
       setMeState(v);
       writePref(ME_KEY, v);
-    },
-    pass,
-    setPass: (v: string) => {
-      setPassState(v);
-      writePref(PASS_KEY, v);
     },
     storageOk: !!kv,
     cloud,

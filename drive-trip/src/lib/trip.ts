@@ -90,7 +90,7 @@ export function remove(trip: Trip, c: Collection, id: string, now = Date.now()):
 }
 
 /**
- * 2つの旅行データを統合する（共有コードの取り込み用）。
+ * 2つの旅行データを統合する（共有データや端末のデータの統合用）。
  * レコード単位で updatedAt が新しい方を採用し、削除記録（tombstone）より古いレコードは消す。
  * 同じ入力なら順序に関係なく同じ結果になる。
  */
