@@ -9,7 +9,8 @@
   "fee": "無料（駐車場は要確認）",
   "lat": 35.8255,
   "lng": 139.626,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 10
  },
  {
   "id": "railway-museum",
@@ -22,7 +23,8 @@
   "lat": 35.9213,
   "lng": 139.6178,
   "coord": "approx",
-  "url": "https://www.railway-museum.jp/"
+  "url": "https://www.railway-museum.jp/",
+  "driveMin": 30
  },
  {
   "id": "kawagoe",
@@ -35,7 +37,8 @@
   "lat": 35.9236,
   "lng": 139.4848,
   "coord": "approx",
-  "url": "https://www.koedo.or.jp/"
+  "url": "https://www.koedo.or.jp/",
+  "driveMin": 40
  },
  {
   "id": "kawagoe-hikawa",
@@ -48,7 +51,8 @@
   "lat": 35.9254,
   "lng": 139.4889,
   "coord": "approx",
-  "url": "https://www.kawagoehikawa.jp/"
+  "url": "https://www.kawagoehikawa.jp/",
+  "driveMin": 40
  },
  {
   "id": "omiya-hikawa",
@@ -60,7 +64,8 @@
   "fee": "参拝無料",
   "lat": 35.9163,
   "lng": 139.6303,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 30
  },
  {
   "id": "nagatoro",
@@ -72,7 +77,8 @@
   "fee": "散策無料（舟下りは有料・冬季要確認）",
   "lat": 36.0985,
   "lng": 139.1105,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 90
  },
  {
   "id": "chichibu-shrine",
@@ -85,7 +91,8 @@
   "lat": 35.9975,
   "lng": 139.0846,
   "coord": "approx",
-  "url": "https://www.chichibu-jinja.or.jp/"
+  "url": "https://www.chichibu-jinja.or.jp/",
+  "driveMin": 100
  },
  {
   "id": "sensoji",
@@ -98,7 +105,8 @@
   "lat": 35.7148,
   "lng": 139.7967,
   "coord": "approx",
-  "url": "https://www.senso-ji.jp/"
+  "url": "https://www.senso-ji.jp/",
+  "driveMin": 40
  },
  {
   "id": "skytree",
@@ -111,7 +119,8 @@
   "lat": 35.7101,
   "lng": 139.8107,
   "coord": "approx",
-  "url": "https://www.tokyo-skytree.jp/"
+  "url": "https://www.tokyo-skytree.jp/",
+  "driveMin": 40
  },
  {
   "id": "tokyotower",
@@ -124,7 +133,8 @@
   "lat": 35.6586,
   "lng": 139.7454,
   "coord": "approx",
-  "url": "https://www.tokyotower.co.jp/"
+  "url": "https://www.tokyotower.co.jp/",
+  "driveMin": 40
  },
  {
   "id": "meiji",
@@ -137,7 +147,8 @@
   "lat": 35.6764,
   "lng": 139.6993,
   "coord": "approx",
-  "url": "https://www.meijijingu.or.jp/"
+  "url": "https://www.meijijingu.or.jp/",
+  "driveMin": 35
  },
  {
   "id": "odaiba",
@@ -149,7 +160,8 @@
   "fee": "散策無料",
   "lat": 35.6298,
   "lng": 139.7757,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 45
  },
  {
   "id": "tsukiji",
@@ -162,7 +174,8 @@
   "lat": 35.6655,
   "lng": 139.7707,
   "coord": "approx",
-  "url": "https://www.tsukiji.or.jp/"
+  "url": "https://www.tsukiji.or.jp/",
+  "driveMin": 40
  },
  {
   "id": "ueno",
@@ -174,7 +187,8 @@
   "fee": "入園無料（施設は有料）",
   "lat": 35.7146,
   "lng": 139.7732,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 35
  },
  {
   "id": "kusatsu",
@@ -187,7 +201,8 @@
   "lat": 36.6227,
   "lng": 138.5965,
   "coord": "approx",
-  "url": "https://www.kusatsu-onsen.ne.jp/"
+  "url": "https://www.kusatsu-onsen.ne.jp/",
+  "driveMin": 180
  },
  {
   "id": "ikaho",
@@ -199,7 +214,8 @@
   "fee": "散策無料",
   "lat": 36.4979,
   "lng": 138.9196,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 110
  },
  {
   "id": "tomioka",
@@ -212,7 +228,8 @@
   "lat": 36.2554,
   "lng": 138.8877,
   "coord": "approx",
-  "url": "https://www.tomioka-silk.jp/"
+  "url": "https://www.tomioka-silk.jp/",
+  "driveMin": 90
  },
  {
   "id": "toshogu",
@@ -225,7 +242,8 @@
   "lat": 36.758,
   "lng": 139.5988,
   "coord": "approx",
-  "url": "https://www.toshogu.jp/"
+  "url": "https://www.toshogu.jp/",
+  "driveMin": 120
  },
  {
   "id": "kegon",
@@ -237,7 +255,8 @@
   "fee": "観瀑台エレベーターは有料",
   "lat": 36.738,
   "lng": 139.5025,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 140
  },
  {
   "id": "ashikaga",
@@ -250,7 +269,8 @@
   "lat": 36.315,
   "lng": 139.5196,
   "coord": "approx",
-  "url": "https://www.ashikaga.co.jp/"
+  "url": "https://www.ashikaga.co.jp/",
+  "driveMin": 80
  },
  {
   "id": "kinugawa",
@@ -262,7 +282,8 @@
   "fee": "入浴施設は有料",
   "lat": 36.823,
   "lng": 139.718,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 120
  },
  {
   "id": "naritasan",
@@ -275,7 +296,8 @@
   "lat": 35.7859,
   "lng": 140.3185,
   "coord": "approx",
-  "url": "https://www.naritasan.or.jp/"
+  "url": "https://www.naritasan.or.jp/",
+  "driveMin": 70
  },
  {
   "id": "nokogiri",
@@ -288,7 +310,8 @@
   "lat": 35.1599,
   "lng": 139.8388,
   "coord": "approx",
-  "url": "https://www.mt-nokogiri.co.jp/"
+  "url": "https://www.mt-nokogiri.co.jp/",
+  "driveMin": 100
  },
  {
   "id": "umihotaru",
@@ -300,7 +323,8 @@
   "fee": "入場無料（通行料が必要）",
   "lat": 35.4644,
   "lng": 139.8752,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 60
  },
  {
   "id": "doitsumura",
@@ -313,7 +337,8 @@
   "lat": 35.4064,
   "lng": 140.0546,
   "coord": "approx",
-  "url": "https://www.t-doitsumura.co.jp/"
+  "url": "https://www.t-doitsumura.co.jp/",
+  "driveMin": 75
  },
  {
   "id": "kamogawa",
@@ -326,7 +351,8 @@
   "lat": 35.115,
   "lng": 140.125,
   "coord": "approx",
-  "url": "https://www.kamogawa-seaworld.jp/"
+  "url": "https://www.kamogawa-seaworld.jp/",
+  "driveMin": 120
  },
  {
   "id": "hitachi",
@@ -339,7 +365,8 @@
   "lat": 36.4029,
   "lng": 140.596,
   "coord": "approx",
-  "url": "https://hitachikaihin.jp/"
+  "url": "https://hitachikaihin.jp/",
+  "driveMin": 110
  },
  {
   "id": "fukuroda",
@@ -351,7 +378,8 @@
   "fee": "有料（観瀑トンネル）",
   "lat": 36.7638,
   "lng": 140.4058,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 150
  },
  {
   "id": "oarai",
@@ -363,7 +391,8 @@
   "fee": "参拝無料",
   "lat": 36.3162,
   "lng": 140.5779,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 110
  },
  {
   "id": "ushiku",
@@ -375,7 +404,8 @@
   "fee": "有料（公式サイトで確認）",
   "lat": 35.9822,
   "lng": 140.2194,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 70
  },
  {
   "id": "tsukuba",
@@ -387,7 +417,8 @@
   "fee": "ケーブルカー等は有料",
   "lat": 36.2253,
   "lng": 140.1067,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 75
  },
  {
   "id": "chinatown",
@@ -400,7 +431,8 @@
   "lat": 35.4433,
   "lng": 139.646,
   "coord": "approx",
-  "url": "https://www.chinatown.or.jp/"
+  "url": "https://www.chinatown.or.jp/",
+  "driveMin": 55
  },
  {
   "id": "minatomirai",
@@ -412,7 +444,8 @@
   "fee": "散策無料",
   "lat": 35.4573,
   "lng": 139.632,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 50
  },
  {
   "id": "tsurugaoka",
@@ -425,7 +458,8 @@
   "lat": 35.3259,
   "lng": 139.5565,
   "coord": "approx",
-  "url": "https://www.hachimangu.or.jp/"
+  "url": "https://www.hachimangu.or.jp/",
+  "driveMin": 80
  },
  {
   "id": "daibutsu",
@@ -438,7 +472,8 @@
   "lat": 35.3168,
   "lng": 139.5357,
   "coord": "approx",
-  "url": "https://www.kotoku-in.jp/"
+  "url": "https://www.kotoku-in.jp/",
+  "driveMin": 85
  },
  {
   "id": "enoshima",
@@ -450,7 +485,8 @@
   "fee": "散策無料（一部施設有料）",
   "lat": 35.2999,
   "lng": 139.4808,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 80
  },
  {
   "id": "owakudani",
@@ -462,7 +498,8 @@
   "fee": "散策無料（ロープウェー有料）",
   "lat": 35.2441,
   "lng": 139.0198,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 120
  },
  {
   "id": "shikiji",
@@ -475,7 +512,8 @@
   "lat": 34.9395,
   "lng": 138.4095,
   "coord": "approx",
-  "url": "https://www.saunashikiji.jp/"
+  "url": "https://www.saunashikiji.jp/",
+  "driveMin": 150
  },
  {
   "id": "aoba-oden",
@@ -487,7 +525,8 @@
   "fee": "店舗により異なる",
   "lat": 34.9725,
   "lng": 138.3855,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 150
  },
  {
   "id": "sengen",
@@ -499,7 +538,8 @@
   "fee": "参拝無料",
   "lat": 35.2229,
   "lng": 138.6107,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 130
  },
  {
   "id": "shiraito",
@@ -511,7 +551,8 @@
   "fee": "散策無料（駐車場は有料の場合あり）",
   "lat": 35.3125,
   "lng": 138.5878,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 140
  },
  {
   "id": "miho",
@@ -523,7 +564,8 @@
   "fee": "散策無料",
   "lat": 35.0001,
   "lng": 138.5229,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 160
  },
  {
   "id": "kunozan",
@@ -535,7 +577,8 @@
   "fee": "有料（拝観料は公式情報で確認）",
   "lat": 34.965,
   "lng": 138.469,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 160
  },
  {
   "id": "atami",
@@ -547,7 +590,8 @@
   "fee": "入浴施設は有料",
   "lat": 35.0956,
   "lng": 139.0718,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 120
  },
  {
   "id": "chanko-kawasaki",
@@ -559,7 +603,8 @@
   "fee": "店舗で確認（予約推奨）",
   "lat": 35.6936,
   "lng": 139.7946,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 40
  },
  {
   "id": "chanko-yoshiba",
@@ -571,7 +616,8 @@
   "fee": "店舗で確認（予約推奨）",
   "lat": 35.6967,
   "lng": 139.799,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 40
  },
  {
   "id": "chanko-kirishima",
@@ -583,7 +629,8 @@
   "fee": "店舗で確認",
   "lat": 35.696,
   "lng": 139.7935,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 40
  },
  {
   "id": "marumasuya",
@@ -595,7 +642,8 @@
   "fee": "店舗により異なる（現金のみの可能性あり・要確認）",
   "lat": 35.778,
   "lng": 139.7225,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 15
  },
  {
   "id": "izumiya",
@@ -607,7 +655,8 @@
   "fee": "店舗により異なる",
   "lat": 35.9075,
   "lng": 139.6255,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 30
  },
  {
   "id": "hoppy-dori",
@@ -619,7 +668,8 @@
   "fee": "店舗により異なる",
   "lat": 35.714,
   "lng": 139.7935,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 40
  },
  {
   "id": "omoide",
@@ -631,7 +681,8 @@
   "fee": "店舗により異なる",
   "lat": 35.693,
   "lng": 139.6995,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 35
  },
  {
   "id": "noge",
@@ -643,6 +694,98 @@
   "fee": "店舗により異なる",
   "lat": 35.4485,
   "lng": 139.6305,
-  "coord": "approx"
+  "coord": "approx",
+  "driveMin": 50
+ },
+ {
+  "id": "fuji-5th",
+  "name": "富士山 富士スバルライン五合目",
+  "pref": "山梨",
+  "address": "山梨県南都留郡富士河口湖町（富士スバルライン終点）",
+  "genre": "自然・絶景",
+  "description": "車で行ける富士山の五合目。目の前に山頂、眼下に雲海や富士五湖。冬は積雪・凍結で通行止めや途中までの規制が多いので、行く前に道路情報を必ず確認。",
+  "fee": "富士スバルラインは有料道路（普通車・料金は要確認）",
+  "lat": 35.395,
+  "lng": 138.733,
+  "coord": "approx",
+  "driveMin": 140
+ },
+ {
+  "id": "arakurayama",
+  "name": "新倉山浅間公園（忠霊塔と富士山）",
+  "pref": "山梨",
+  "address": "山梨県富士吉田市浅間2丁目",
+  "genre": "自然・絶景",
+  "description": "五重塔（忠霊塔）と富士山を一緒に撮れる定番の絶景ポイント。展望デッキまで約400段の階段。",
+  "fee": "無料",
+  "lat": 35.5013,
+  "lng": 138.8015,
+  "coord": "approx",
+  "driveMin": 100
+ },
+ {
+  "id": "oishi",
+  "name": "河口湖 大石公園",
+  "pref": "山梨",
+  "address": "山梨県南都留郡富士河口湖町大石",
+  "genre": "自然・絶景",
+  "description": "河口湖越しに富士山を正面から望む公園。湖畔ドライブと合わせて。",
+  "fee": "無料",
+  "lat": 35.5254,
+  "lng": 138.7344,
+  "coord": "approx",
+  "driveMin": 110
+ },
+ {
+  "id": "oshino",
+  "name": "忍野八海",
+  "pref": "山梨",
+  "address": "山梨県南都留郡忍野村忍草",
+  "genre": "自然・絶景",
+  "description": "富士山の湧水がたまった8つの池。澄んだ水と富士山の景色。",
+  "fee": "散策無料（一部有料施設あり）",
+  "lat": 35.4605,
+  "lng": 138.8335,
+  "coord": "approx",
+  "driveMin": 110
+ },
+ {
+  "id": "motosu",
+  "name": "本栖湖（千円札の富士山）",
+  "pref": "山梨",
+  "address": "山梨県南巨摩郡身延町・南都留郡富士河口湖町",
+  "genre": "自然・絶景",
+  "description": "旧五千円札・千円札に描かれた富士山の景色で知られる湖。湖畔の展望地から眺められる。",
+  "fee": "無料",
+  "lat": 35.463,
+  "lng": 138.585,
+  "coord": "approx",
+  "driveMin": 130
+ },
+ {
+  "id": "tanuki",
+  "name": "田貫湖（逆さ富士）",
+  "pref": "静岡",
+  "address": "静岡県富士宮市佐折",
+  "genre": "自然・絶景",
+  "description": "湖面に映る「逆さ富士」が見られる湖。白糸の滝や浅間大社と同じ富士宮エリア。",
+  "fee": "無料",
+  "lat": 35.3433,
+  "lng": 138.56,
+  "coord": "approx",
+  "driveMin": 140
+ },
+ {
+  "id": "satta",
+  "name": "薩埵峠",
+  "pref": "静岡",
+  "address": "静岡県静岡市清水区",
+  "genre": "自然・絶景",
+  "description": "駿河湾・東名高速・富士山を一枚に収める絶景ポイント。サウナしきじや清水方面と組み合わせやすい。",
+  "fee": "無料（駐車場は台数少なめ）",
+  "lat": 35.0868,
+  "lng": 138.5498,
+  "coord": "approx",
+  "driveMin": 150
  }
 ]

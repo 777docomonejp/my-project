@@ -237,7 +237,7 @@ input[type="file"] { border: 0; padding: 0; min-height: 0; }
 
 .toolbar { display: flex; gap: 8px; align-items: center; }
 .toolbar input { flex: 1; min-width: 0; }
-.filters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.filters { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
 .filters select { font-size: 16px; padding: 6px; }
 
 .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
@@ -350,3 +350,4 @@ section > .list { background: var(--surface); border: 1px solid var(--line); bor
 .card.conflict { border-color: var(--warn); background: var(--warn-bg); }
 .card.share-card { border-color: var(--sign); background: var(--accent-soft); }
 .share-card input { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 14px; }
+.drive { white-space: nowrap; }

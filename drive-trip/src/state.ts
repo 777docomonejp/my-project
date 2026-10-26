@@ -221,6 +221,14 @@ export function fmtDate(d: string): string {
   return `${Number(m[2])}/${Number(m[3])}（${"日月火水木金土"[dt.getDay()]}）`;
 }
 
+/** 車の時間：40 → 約40分、100 → 約1時間40分 */
+export function fmtDrive(min: number): string {
+  if (min < 60) return `約${min}分`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return `約${h}時間${m ? `${m}分` : ""}`;
+}
+
 export function fmtTime(ms: number): string {
   const d = new Date(ms);
   return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { GENRES, PREFS, type Genre, type Pref, type Spot, type SpotStatus } from "../types";
 import { newId } from "../lib/trip";
-import type { Store } from "../state";
+import { fmtDrive, type Store } from "../state";
 import { MapView } from "./MapView";
 import { Field, Sheet, numOr } from "./ui";
 
@@ -13,6 +13,7 @@ export function SpotsTab({ s, onOpen }: { s: Store; onOpen: (id: string) => void
   const [genre, setGenre] = useState<Genre | "">("");
   const [status, setStatus] = useState<SpotStatus | "fav" | "">("");
   const [view, setView] = useState<"list" | "map">("list");
+  const [sort, setSort] = useState<"default" | "near">("default");
   const [adding, setAdding] = useState(false);
 
   const stateMap = useMemo(() => new Map(s.trip.spotStates.map((x) => [x.id, x])), [s.trip.spotStates]);
@@ -20,7 +21,7 @@ export function SpotsTab({ s, onOpen }: { s: Store; onOpen: (id: string) => void
 
   const filtered = useMemo(() => {
     const k = q.trim().toLowerCase();
-    return s.spots.filter((sp) => {
+    const list = s.spots.filter((sp) => {
       if (pref && sp.pref !== pref) return false;
       if (genre && sp.genre !== genre) return false;
       const st = stateMap.get(sp.id);
@@ -29,7 +30,8 @@ export function SpotsTab({ s, onOpen }: { s: Store; onOpen: (id: string) => void
       if (k && !`${sp.name} ${sp.address} ${sp.description} ${sp.genre}`.toLowerCase().includes(k)) return false;
       return true;
     });
-  }, [s.spots, q, pref, genre, status, stateMap]);
+    return sort === "near" ? [...list].sort((a, b) => (a.driveMin ?? 9999) - (b.driveMin ?? 9999)) : list;
+  }, [s.spots, q, pref, genre, status, stateMap, sort]);
 
   return (
     <div className="stack">
@@ -56,8 +58,12 @@ export function SpotsTab({ s, onOpen }: { s: Store; onOpen: (id: string) => void
           <option value="hold">保留</option>
           <option value="no">行かない</option>
         </select>
+        <select id="f-sort" value={sort} onChange={(e) => setSort(e.target.value as "default" | "near")} aria-label="並び順">
+          <option value="default">地域順</option>
+          <option value="near">戸田から近い順</option>
+        </select>
       </div>
-      <p className="muted small">{filtered.length}件。座標は概略位置です。正確な場所・営業日・料金はGoogleマップや公式サイトで確認してください。</p>
+      <p className="muted small">{filtered.length}件。車の時間は戸田市から渋滞なしの目安です（年末年始の渋滞で大きく増えます）。座標は概略位置です。正確な場所・営業日・料金はGoogleマップや公式サイトで確認してください。</p>
 
       {view === "map" && <MapView spots={filtered} statusOf={statusOf} onSelect={onOpen} />}
 
@@ -75,6 +81,7 @@ export function SpotsTab({ s, onOpen }: { s: Store; onOpen: (id: string) => void
                   </span>
                   <span className="muted small">
                     {sp.pref}・{sp.genre}
+                    {sp.driveMin !== undefined && <span className="drive">・車で{fmtDrive(sp.driveMin)}</span>}
                     {st?.status && `・${STATUS_LABEL[st.status]}`}
                     {sp.custom && "・追加した場所"}
                   </span>

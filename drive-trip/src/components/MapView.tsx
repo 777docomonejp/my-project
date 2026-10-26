@@ -15,6 +15,7 @@ const PREF_LABELS: [string, number, number][] = [
   ["茨城", 36.3, 140.3],
   ["神奈川", 35.42, 139.3],
   ["静岡", 35.1, 138.45],
+  ["山梨", 35.62, 138.62],
 ];
 
 export const STATUS_COLOR: Record<SpotStatus | "none", string> = { want: "#1f7a52", hold: "#b7791f", no: "#8a8f98", none: "#2f5d9e" };

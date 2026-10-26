@@ -113,3 +113,14 @@ describe("追加した静岡・居酒屋・ちゃんこ", () => {
     expect(spots.filter((s) => s.genre === "居酒屋").length).toBeGreaterThanOrEqual(4);
   });
 });
+
+describe("富士山と車の時間", () => {
+  it("富士山の絶景ポイントが入り、全ての同梱スポットに戸田からの車の時間がある", () => {
+    expect(spots.filter((s) => s.pref === "山梨").length).toBeGreaterThanOrEqual(4);
+    expect(spots.some((s) => s.id === "fuji-5th")).toBe(true);
+    for (const s of spots) {
+      expect(s.driveMin).toBeGreaterThan(0);
+      expect(s.driveMin).toBeLessThan(300);
+    }
+  });
+});
