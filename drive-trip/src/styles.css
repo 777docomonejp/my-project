@@ -233,7 +233,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
 .seg button { border: 0; background: var(--surface); min-height: 40px; padding: 0 14px; cursor: pointer; }
 .seg button.on { background: var(--sign); color: var(--sign-fg); font-weight: 700; }
-.seg.wide { display: grid; grid-template-columns: 1fr 1fr 0.8fr 1.4fr; }
+.seg.wide { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
 .seg.wide button { padding: 0 4px; font-size: 0.85rem; }
 
 input, select, textarea {

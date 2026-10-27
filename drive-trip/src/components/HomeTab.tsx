@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { BookingStatus, Hotel, Member, TripMeta } from "../types";
 import { newId } from "../lib/trip";
 import { summarize, yen } from "../lib/cost";
 import { DEFAULT_BASE, fmtDate, type Store } from "../state";
 import { Badge, ConfirmButton, Field, Sheet, copyText, numOr } from "./ui";
 import { keyFromLink, shareUrl } from "../lib/remote";
+import { SHARED_APP_URL, encodeTransfer } from "../lib/transfer";
 
 const STATUSES: BookingStatus[] = ["未確認", "未予約", "予約済み", "キャンセル"];
 
@@ -36,7 +37,9 @@ export function HomeTab({ s, go }: { s: Store; go: (tab: string) => void }) {
           </div>
         </section>
       )}
-      <ShareLinkCard s={s} />
+      <MoveCard s={s} />
+      <ImportCard s={s} />
+      {!s.pendingImport && <ShareLinkCard s={s} />}
       <section className="hero">
         <div className="hero-sign">
           <p className="eyebrow">{trip.meta.title}</p>
@@ -363,5 +366,61 @@ function JoinByLink({ s }: { s: Store }) {
       <button className="btn primary" disabled={!text.trim()}>開く</button>
       {err && <p className="warn-text small">{err}</p>}
     </form>
+  );
+}
+
+/** claude.ai 版：3人共有アプリへ1タップで引っ越す */
+function MoveCard({ s }: { s: Store }) {
+  const [href, setHref] = useState("");
+  const json = JSON.stringify(s.trip);
+  useEffect(() => {
+    if (s.server) return;
+    let alive = true;
+    encodeTransfer(s.trip)
+      .then((code) => alive && setHref(`${SHARED_APP_URL}#import=${code}`))
+      .catch(() => alive && setHref(SHARED_APP_URL));
+    return () => {
+      alive = false;
+    };
+    // 中身が変わったときだけ作り直す
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [json, s.server]);
+  if (s.server) return null;
+  return (
+    <section className="card share-card">
+      <h2>3人で使うのは共有アプリです</h2>
+      <p className="small">このページ（Claude アプリの中の版）は、あなたのスマホでしか見られません。下のボタンで、今の内容をそのまま3人の共有アプリに移して開けます。開いたら「取り込む」を押してください。</p>
+      {href ? (
+        <a className="btn primary" href={href} target="_blank" rel="noreferrer">
+          共有アプリに引っ越して開く
+        </a>
+      ) : (
+        <span className="btn primary" aria-disabled="true">準備中…</span>
+      )}
+      <p className="muted small">開いたあとは、Safari でそのページを「ホーム画面に追加」して使うのがおすすめです。</p>
+    </section>
+  );
+}
+
+/** Vercel 版：claude.ai 版からの引っ越しデータを取り込む確認 */
+function ImportCard({ s }: { s: Store }) {
+  const t = s.pendingImport;
+  if (!t) return null;
+  return (
+    <section className="card share-card" role="alert">
+      <h2>claude.ai 版のデータを取り込みますか？</h2>
+      <p className="small">
+        「{t.meta.title}」（メンバー：{t.members.map((m) => m.name).join("・")}／費用{t.costs.length}件・予定{t.itinerary.length}件・チャット{t.messages.length}件）
+      </p>
+      <p className="muted small">
+        {s.shareKey
+          ? "今の共有データはこの内容に置き換わります。前の状態は「共有」→「バックアップ」→「履歴を見る」から戻せます。"
+          : "取り込むと共有URLができます。そのURLを2人に送ってください。"}
+      </p>
+      <div className="row wrap">
+        <button className="btn primary" onClick={s.acceptImport}>取り込む</button>
+        <button className="btn" onClick={s.dismissImport}>取り込まない</button>
+      </div>
+    </section>
   );
 }

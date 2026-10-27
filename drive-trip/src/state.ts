@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import spotsJson from "./data/spots.json";
 import type { Collection, Spot, Trip } from "./types";
+import { decodeTransfer, readImportCode } from "./lib/transfer";
 import { httpDoc, newShareKey, putInUrl, readShareKey, remember, type CloudDoc } from "./lib/remote";
 import { decideCloud, loadTrip, mergeTrips, normalizeTrip, readStash, remove, safeStorage, saveTrip, stashTrip, upsert } from "./lib/trip";
 
@@ -40,6 +41,9 @@ function parseCloud(d: Record<string, unknown> | undefined): Trip | null {
 }
 
 export function useTripStore() {
+  // 引っ越しデータ（#import=）は共有キーの読み込みでURLが書き換わる前に読んでおく
+  const [importCode] = useState(() => (SERVER ? readImportCode() : ""));
+  const [pendingImport, setPendingImport] = useState<Trip | null>(null);
   const kv = useMemo(() => safeStorage(), []);
   const initial = useMemo(() => loadTrip(kv), [kv]);
   const [trip, setTrip] = useState<Trip>(initial.trip);
@@ -129,6 +133,46 @@ export function useTripStore() {
     setShareKey(k);
   }, []);
 
+  useEffect(() => {
+    if (!importCode) return;
+    void decodeTransfer(importCode).then((t) => {
+      if (t) setPendingImport(t);
+      else setNotice("引っ越しデータを読み込めませんでした。claude.ai 版の「バックアップ」→「テキストでコピー」で移してください。");
+    });
+  }, [importCode]);
+
+  const clearImportFromUrl = () => {
+    try {
+      history.replaceState(null, "", `${location.pathname}${location.search}${shareKey ? `#k=${shareKey}` : ""}`);
+    } catch {
+      /* 無視 */
+    }
+  };
+
+  /** claude.ai 版からの引っ越しを取り込む。共有前なら共有URLも作る。今のデータは端末に退避（共有済みならサーバーの履歴にも残る） */
+  const acceptImport = () => {
+    const t = pendingImport;
+    if (!t) return;
+    setPendingImport(null);
+    stashTrip(kv, tripRef.current);
+    if (shareKey) {
+      setConflict(null);
+      lastCloudJson.current = "";
+      if (doc.current) ready.current = true;
+      setCloud((c) => (c === "conflict" ? "saved" : c));
+      setTrip(t);
+      clearImportFromUrl();
+    } else {
+      setTrip(t);
+      createShareKey();
+    }
+  };
+
+  const dismissImport = () => {
+    setPendingImport(null);
+    clearImportFromUrl();
+  };
+
   // 変更をクラウドへ（まとめて1.5秒後に1回）
   useEffect(() => {
     const ref = doc.current;
@@ -212,6 +256,9 @@ export function useTripStore() {
     shareKey,
     createShareKey,
     joinShareKey,
+    pendingImport,
+    acceptImport,
+    dismissImport,
     server: SERVER,
   };
 }

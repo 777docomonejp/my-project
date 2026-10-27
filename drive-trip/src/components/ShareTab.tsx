@@ -7,11 +7,11 @@ import { ShareLinkCard } from "./HomeTab";
 import { ConfirmButton, copyText } from "./ui";
 
 export function ShareTab({ s, onOpenSpot }: { s: Store; onOpenSpot: (id: string) => void }) {
-  const [section, setSection] = useState<"url" | "chat" | "vote" | "backup">("url");
+  const [section, setSection] = useState<"url" | "chat" | "vote" | "backup">(s.server ? "url" : "chat");
   return (
     <div className="stack">
       <div className="seg wide" role="tablist">
-        {([["url", "共有URL"], ["chat", "チャット"], ["vote", "投票"], ["backup", "バックアップ"]] as const).map(([k, v]) => (
+        {([["url", "共有URL"], ["chat", "チャット"], ["vote", "投票"], ["backup", "バックアップ"]] as const).filter(([k]) => s.server || k !== "url").map(([k, v]) => (
           <button key={k} role="tab" aria-selected={section === k} className={section === k ? "on" : ""} onClick={() => setSection(k)}>{v}</button>
         ))}
       </div>
@@ -94,14 +94,6 @@ function Votes({ s, onOpenSpot }: { s: Store; onOpenSpot: (id: string) => void }
 }
 
 function ShareUrl({ s }: { s: Store }) {
-  if (!s.server) {
-    return (
-      <section className="card stack">
-        <h2>共有URL</h2>
-        <p className="small">このページ（claude.ai 版）には共有URLはありません。3人で使うときは Vercel 版のアプリを開いてください。</p>
-      </section>
-    );
-  }
   return (
     <section className="stack">
       <ShareLinkCard s={s} always />
